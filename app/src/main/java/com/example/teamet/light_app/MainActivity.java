@@ -14,6 +14,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
+//    ネットワーク設定
+    public  void netSet(View view){
+        Log.v("Function", "netSet");
+
+        Intent intent = new Intent(this, NetworkSetActivity.class);
+        startActivity(intent);
+    }
+
 //    情報の表示
     public void viewInfo(View view) {
         Log.v("Function", "viewInfo");
