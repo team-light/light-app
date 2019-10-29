@@ -2,11 +2,17 @@ package com.example.teamet.light_app;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
 import android.content.Context;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
 
 public class MainActivity extends AppCompatActivity {
+
+    BroadcastReceiver receiver;
+    WifiP2pManager manager;
+    WifiP2pManager.Channel channel;
+    IntentFilter intentFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
