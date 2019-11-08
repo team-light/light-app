@@ -29,4 +29,12 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, DisplayInfoActivity.class);
         startActivity(intent);
     }
+
+//    GISの表示
+    public void viewGIS(View view){
+        Log.v("Function", "viewGIS");
+
+        Intent intent = new Intent(this, DisplayGISActivity.class);
+        startActivity(intent);
+    }
 }
