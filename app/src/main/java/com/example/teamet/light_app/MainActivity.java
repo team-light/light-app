@@ -24,7 +24,10 @@ public class MainActivity extends AppCompatActivity {
             if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
                 int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
                 if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-                    onWifiP2pEnabled();
+                    // onWifiP2pEnabled();
+                }
+                else if (state == WifiP2pManager.WIFI_P2P_STATE_DISABLED) {
+                    // onWifiP2pDisabled();
                 }
 
                 Toast.makeText(MainActivity.this, "P2P state changed : " + state, Toast.LENGTH_SHORT).show();
@@ -51,10 +54,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    pm.enable();
+                    pm.discoverPeers();
                 }
                 else {
-                    pm.disable();
+                    pm.stopPeerDiscovery();
                 }
             }
         });
@@ -62,16 +65,18 @@ public class MainActivity extends AppCompatActivity {
         ((Button)findViewById(R.id.button)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ((TextView)findViewById(R.id.debugText)).setText("UNKNOWN");
                 pm.requestPeers();
             }
         });
     }
 
-    private void onWifiP2pEnabled() {
-        Toast.makeText(MainActivity.this, "P2P Manager Enabled.", Toast.LENGTH_SHORT).show();
+    private void onStartDiscovery() {
         pm.setIsEnabled(true);
-        ((Switch)findViewById(R.id.switch1)).setChecked(true);
-        pm.discoverPeers();
+    }
+
+    private void onStopDiscovery() {
+        pm.setIsEnabled(false);
     }
 
     public void onResume() {

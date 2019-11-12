@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.widget.Switch;
 import android.widget.Toast;
 import android.widget.TextView;
 
@@ -16,17 +17,9 @@ public class P2pManager {
 
     public P2pManager(Activity activity) {
         this.activity = activity;
-    }
-
-    public void enable() {
-        Toast.makeText(activity, "Starting P2P Manager ...", Toast.LENGTH_SHORT).show();
 
         manager = (WifiP2pManager) activity.getSystemService(Context.WIFI_P2P_SERVICE);
         channel = manager.initialize(activity, activity.getMainLooper(), null);
-    }
-
-    public void disable() {
-        // TODO: 2019/11/12
     }
 
     public void discoverPeers() {
@@ -39,6 +32,20 @@ public class P2pManager {
             @Override
             public void onFailure(int reason) {
                 Toast.makeText(activity, "discoverPeers failed.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void stopPeerDiscovery() {
+        manager.stopPeerDiscovery(channel,  new WifiP2pManager.ActionListener () {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(activity, "stopPeerDiscovery success.", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                Toast.makeText(activity, "stopPeerDiscovery failed.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -69,9 +76,6 @@ public class P2pManager {
 
     public void setIsEnabled(boolean isEnabled) {
         this.isEnabled = isEnabled;
-    }
-
-    public boolean getIsEnabled() {
-        return isEnabled;
+        ((Switch)activity.findViewById(R.id.switch1)).setChecked(isEnabled);
     }
 }
