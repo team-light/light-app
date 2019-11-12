@@ -1,45 +1,86 @@
 package com.example.teamet.light_app;
 
-import android.net.wifi.p2p.WifiP2pConfig;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
-import android.content.Context;
-import android.net.wifi.p2p.WifiP2pManager;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-    private WifiP2pManager manager;
-    private WifiP2pManager.Channel channel;
+    final IntentFilter intentFilter = new IntentFilter();
+    final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
+                int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
+                if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
+                    onWifiP2pEnabled();
+                }
+
+                Toast.makeText(MainActivity.this, "P2P state changed : " + state, Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
+
+    P2pManager pm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = manager.initialize(this, getMainLooper(), null);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+
+        pm = new P2pManager(this);
+
+        Switch switchButton = findViewById(R.id.switch1);
+        switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    pm.enable();
+                }
+                else {
+                    pm.disable();
+                }
+            }
+        });
+
+        ((Button)findViewById(R.id.button)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pm.requestPeers();
+            }
+        });
     }
 
-    public void onResume(){
+    private void onWifiP2pEnabled() {
+        Toast.makeText(MainActivity.this, "P2P Manager Enabled.", Toast.LENGTH_SHORT).show();
+        pm.setIsEnabled(true);
+        ((Switch)findViewById(R.id.switch1)).setChecked(true);
+        pm.discoverPeers();
+    }
+
+    public void onResume() {
         super.onResume();
+        registerReceiver(receiver, intentFilter);
     }
 
-    public void onPause(){
+    public void onPause() {
         super.onPause();
-    }
-
-    private void connect(WifiP2pConfig config) {
-        manager.connect(channel, config, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-                Toast.makeText(MainActivity.this, "Connect success.", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(int reason) {
-                Toast.makeText(MainActivity.this, "Connect failed.", Toast.LENGTH_SHORT).show();
-            }
-        } );
+        unregisterReceiver(receiver);
     }
 }
