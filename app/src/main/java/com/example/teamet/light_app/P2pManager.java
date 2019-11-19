@@ -26,12 +26,12 @@ public class P2pManager {
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener () {
             @Override
             public void onSuccess() {
-                Toast.makeText(activity, "discoverPeers success.", Toast.LENGTH_SHORT).show();
+                showToast(successMsg("discoverPeers"));
             }
 
             @Override
             public void onFailure(int reason) {
-                Toast.makeText(activity, "discoverPeers failed.", Toast.LENGTH_SHORT).show();
+                showToast(failureMsg("discoverPeers"));
             }
         });
     }
@@ -40,12 +40,12 @@ public class P2pManager {
         manager.stopPeerDiscovery(channel,  new WifiP2pManager.ActionListener () {
             @Override
             public void onSuccess() {
-                Toast.makeText(activity, "stopPeerDiscovery success.", Toast.LENGTH_SHORT).show();
+                showToast(successMsg("stopPeerDiscovery"));
             }
 
             @Override
             public void onFailure(int reason) {
-                Toast.makeText(activity, "stopPeerDiscovery failed.", Toast.LENGTH_SHORT).show();
+                showToast(failureMsg("stopPeerDiscovery"));
             }
         });
     }
@@ -54,12 +54,12 @@ public class P2pManager {
         manager.connect(channel, config, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
-                Toast.makeText(activity, "Connect success.", Toast.LENGTH_SHORT).show();
+                showToast(successMsg("Connect"));
             }
 
             @Override
             public void onFailure(int reason) {
-                Toast.makeText(activity, "Connect failed.", Toast.LENGTH_SHORT).show();
+                showToast(failureMsg("Connect"));
             }
         } );
     }
@@ -71,11 +71,25 @@ public class P2pManager {
                 TextView tv = activity.findViewById(R.id.debugText);
                 tv.setText(peers.toString());
             }
-        });
+        } );
     }
 
     public void setIsEnabled(boolean isEnabled) {
         this.isEnabled = isEnabled;
         ((Switch)activity.findViewById(R.id.switch1)).setChecked(isEnabled);
+    }
+
+    private void showToast(String text) {
+        Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+    }
+
+    // エラーメッセージ生成
+    private String failureMsg(String fnName) {
+        return fnName + "(...) failure.";
+    }
+
+    // 成功メッセージ生成
+    private String successMsg(String fnName) {
+        return fnName + "(...) success.";
     }
 }
