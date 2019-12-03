@@ -5,15 +5,17 @@ import android.content.Context;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.support.v4.util.Consumer;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
-import android.widget.TextView;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,6 +110,15 @@ public class P2pManager {
 
     public List<String> getPeers() {
         return peers;
+    }
+
+    public void requestIPAddr(final Consumer<InetAddress> callback) {
+        manager.requestConnectionInfo(channel, new WifiP2pManager.ConnectionInfoListener() {
+            @Override
+            public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
+                callback.accept( wifiP2pInfo.groupOwnerAddress );
+            }
+        });
     }
 
     private void showToast(String text) {
