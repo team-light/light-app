@@ -17,26 +17,162 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:text="画面遷移成功"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <WebView
-        android:id="@+id/webView"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/displayInfo_hazrd"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+        app:layout_constraintTop_toBottomOf="@+id/textView2">
+
+        <TextView
+            android:id="@+id/textView16"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
+            android:text="@string/fab_text_hazard"
+            android:textColor="@android:color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2019-12-05T08:53:44Z 大雪注意報 12 上川地方 012010 2019-12-05T08:53:44Z なだれ注意報 22 上川地方 012010 2019-12-05T08:53:44Z 大雪注意報 12 留萌地方 012020 2019-12-05T08:53:44Z 風雪注意報 13 留萌地方 012020 2019-12-05T08:53:44Z なだれ注意報 22 留萌地方 012020 2019-12-05T08:53:44Z なだれ注意報 22 上川北部 012011 2019-12-05T08:53:44Z 大雪注意報 12 上川北部 012011 2019-12-05T08:53:44Z なだれ注意報 22 上川中部 012012 2019-12-05T08:53:44Z なだれ注意報 22 上川南部 012013 2019-12-05T08:53:44Z 風雪注意報 13 留萌北部 012021 2019-12-05T08:53:44Z 大雪注意報 12 留萌中部 012022 2019-12-05T08:53:44Z 風雪注意報 13 留萌中部 012022 2019-12-05T08:53:44Z なだれ注意報 22  留萌中部 012022 2019-12-05T08:53:44Z 大雪注意報 12 留萌南部 012023 2019-12-05T08:53:44Z 風雪注意報 13 留萌南部 012023 2019-12-05T08:53:44Z なだれ注意報 22 留萌南部 012023 2019-12-05T08:53:44Z なだれ注意報 22 旭川市 0120400 2019-12-05T08:53:44Z 大雪注意報 12 留萌市 0121200 2019-12-05T08:53:44Z 風雪注意報 13 留萌市 0121200 2019-12-05T08:53:44Z なだれ注意報 22  留萌市 0121200 2019-12-05T08:53:44Z 大雪注意報 12 士別市 0122000 2019-12-05T08:53:44Z なだれ注意報 22  士別市 0122000 2019-12-05T08:53:44Z 大雪注意報 12 名寄市 0122100 2019-12-05T08:53:44Z なだれ注意報 22  名寄市 0122100 "
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView16" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/displayInfo_fab"
+        android:layout_width="0dp"
+        android:layout_height="224dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/displayInfo_fab_info"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/fabColor"
+            app:fabSize="normal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@android:drawable/ic_menu_info_details" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="right"
+            android:orientation="horizontal"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@id/displayInfo_fab_info"
+            app:layout_constraintTop_toTopOf="@id/displayInfo_fab_info">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/fab_text_train" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="invisible"
+                app:backgroundTint="@color/fabColor"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_launcher_background" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="right"
+            android:orientation="horizontal"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@id/displayInfo_fab_info"
+            app:layout_constraintTop_toTopOf="@id/displayInfo_fab_info">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/fab_text_hazard" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="invisible"
+                app:backgroundTint="@color/fabColor"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_launcher_foreground" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="right"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@id/displayInfo_fab_info"
+            app:layout_constraintTop_toTopOf="@id/displayInfo_fab_info">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/fab_text_map"
+                android:visibility="invisible" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                app:backgroundTint="@color/fabColor"
+                app:fabSize="mini"
+                app:srcCompat="@mipmap/ic_launcher_round"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+    </android.support.constraint.ConstraintLayout>
+
 </android.support.constraint.ConstraintLayout>
