@@ -1,41 +1,54 @@
 package com.example.teamet.light_app;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.content.Context;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.content.BroadcastReceiver;
-import android.content.IntentFilter;
+import android.view.View;
+import android.widget.*;
 
 public class MainActivity extends AppCompatActivity {
 
-    BroadcastReceiver receiver;
-    WifiP2pManager manager;
-    WifiP2pManager.Channel channel;
-    IntentFilter intentFilter;
+    private Client cl;
+    private EditText et;
+    private EditText ip;
+    private EditText port;
+    private Button send;
+    private Button cn;
+    private Button trans;
+
+    public boolean isEmpty(EditText editText){
+        return editText.getText().toString().trim().length() == 0;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        et = this.findViewById(R.id.editText);
+        ip = this.findViewById(R.id.IP);
+        port = this.findViewById(R.id.PORT);
+        send = this.findViewById(R.id.send);
+        cn = this.findViewById(R.id.connect);
+        trans = this.findViewById(R.id.transition);
 
-        manager=(WifiP2pManager)getSystemService(Context.WIFI_P2P_SERVICE);
-        channel=manager.initialize(this, getMainLooper(), null);
-    }
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String cx = "";
+                if(!isEmpty(ip) && !isEmpty(port) && !isEmpty(et)) {
+                    cl = new Client(et, ip, port, getApplicationContext());
+                    cl.execute(cx);
+                }else{}
+            }
+        });
 
-    public void onResume(){
-        super.onResume();
-        receiver=new WiFiDirectBroadcastReceiver(manager, channel, this);
-        registerReceiver(receiver, intentFilter);
-    }
-
-    public void onPause(){
-        super.onPause();
-        unregisterReceiver(receiver);
+        trans.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SubActivity.class));
+            }
+        });
     }
 }
