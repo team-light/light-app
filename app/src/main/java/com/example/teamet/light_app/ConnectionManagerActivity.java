@@ -21,7 +21,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class ConnectionManagerActivity extends AppCompatActivity {
     final IntentFilter intentFilter = new IntentFilter();
     final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
                     // onWifiP2pDisabled();
                 }
 
-                Toast.makeText(MainActivity.this, "P2P state changed : " + state, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ConnectionManagerActivity.this, "P2P state changed : " + state, Toast.LENGTH_SHORT).show();
             }
         }
     };
