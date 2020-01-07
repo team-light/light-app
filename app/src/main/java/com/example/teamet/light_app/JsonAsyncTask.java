@@ -9,9 +9,9 @@ public class JsonAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private JsonTask jsonTask;
 
-    public JsonAsyncTask(SQLiteDatabase warnDB) {
+    public JsonAsyncTask(SQLiteDatabase db) {
         super();
-        this.jsonTask = new JsonTask(warnDB);
+        this.jsonTask = new JsonTask(db);
     }
 
     @Override
