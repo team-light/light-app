@@ -10,6 +10,7 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
     private DataBaseMake dbm;
     TextView textView;
+    private Dom dom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,6 +19,10 @@ public class MainActivity extends AppCompatActivity {
 
         textView = (TextView) findViewById(R.id.text_view);
         dbm = new DataBaseMake(getApplicationContext());
+        dom = new Dom(dbm.getReadableDatabase());
+
+        dom.getHighFrequencyInfo();
+
 
         SQLiteDatabase db = dbm.getReadableDatabase();
         Cursor test = db.query(

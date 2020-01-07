@@ -15,9 +15,7 @@ import java.io.InputStreamReader;
 
 public class DataBaseMake extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 3;
-    private static final String DATABASE_NAME = "keihou.db";
-    private static final String TABLE_NAME = "keihoudb";
-    private static final String _ID = "_id";
+    private static final String DATABASE_NAME = "right.db";
 
     private Context context;
 
@@ -29,16 +27,18 @@ public class DataBaseMake extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db){
 
-        db.execSQL("CREATE TABLE info(time TEXT, pref INTEGER, city INTEGER PRIMARY KEY, alert TEXT)");
-        db.execSQL("CREATE TABLE pref(code INTEGER PRIMARY KEY, name TEXT, message TEXT)");
+        db.execSQL("CREATE TABLE warn_info(time TEXT, pref INTEGER, city INTEGER PRIMARY KEY, alert TEXT, message TEXT)");
+        db.execSQL("CREATE TABLE pref(code INTEGER PRIMARY KEY, name TEXT)");
         db.execSQL("CREATE TABLE city(code INTEGER PRIMARY KEY, name TEXT)");
+        db.execSQL("CREATE TABLE earthquake(code INTEGER PRIMARY KEY, time TEXT, hypocenter TEXT, north_lat REAL, east_long REAL, depth INTEGER, magnitude REAL, max_int TEXT, city_list TEXT)");
 //        db.execSQL("CREATE TABLE alert(code INTEGER PRIMARY KEY, name TEXT)");
         Log.d("TAG", "onCreate");
         db.execSQL("CREATE VIEW alert_view AS SELECT time, pref.name, city.name, alert, message FROM pref, city, info WHERE info.pref = pref.code AND info.city = city.code");
-        insert_info(db, "19/12/6 15:30",  1, 110000, "heavy snow");
-        insert_info(db, "19/12/6 16:21", 1, 121300, "terrible typhoon");
-        insert_info(db, "19/12/7 15:00", 13, 1310200, "LEVEL10 Earthquake");
-        insert_info(db, "19/12/8 19:00", 40, 4056700, "matsubayasi");
+        db.execSQL("CREATE VIEW earthquake_view AS SELECT time, hypocenter, north_lat, east_long, depth, magnitude, max_int, city_list FROM pref, city, earthquake");
+//        insert_info(db, "19/12/6 15:30",  1, 110000, "heavy snow");
+//        insert_info(db, "19/12/6 16:21", 1, 121300, "terrible typhoon");
+//        insert_info(db, "19/12/7 15:00", 13, 1310200, "LEVEL10 Earthquake");
+//        insert_info(db, "19/12/8 19:00", 40, 4056700, "matsubayasi");
         readAreaData(db);
         readPrefData(db);
     }
@@ -103,10 +103,13 @@ public class DataBaseMake extends SQLiteOpenHelper {
             while((line = br.readLine()) != null){
                 String[] str = line.split(",");
                 if(str.length >= 2) {
+                    int code = Integer.parseInt(str[0]);
                     ContentValues values = new ContentValues();
-                    values.put("code", Integer.parseInt(str[0]));
+                    values.put("code", code);
                     values.put("name", str[1]);
                     db.insert("city", null, values);
+
+                    insert_info(db, "", code / 100000, code, "");
                 }
             }
         }catch(Exception e){
