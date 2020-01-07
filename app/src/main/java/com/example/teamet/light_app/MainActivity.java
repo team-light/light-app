@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.support.v4.util.Consumer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,11 +75,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 pm.requestPeers();
+                pm.requestIPAddr(new Consumer<InetAddress>() {
+                    @Override
+                    public void accept(InetAddress inetAddress) {
+                        TextView tv = (TextView) findViewById(R.id.textView);
+                        if (inetAddress == null) {
+                            tv.setText("Unknown owner IP a)ddress");
+                        }
+                        else {
+                            tv.setText(inetAddress.toString());
+                        }
+                    }
+                });
             }
         });
 
         List<String> init = new ArrayList<String>();
-        init.add("あいうえお");
+        // init.add("あいうえお");
         lv.setAdapter( new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, init ) );
 
 
