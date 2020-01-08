@@ -17,7 +17,7 @@ public class JsonAsyncTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... voids) {
         Timer timer = new Timer();
-        timer.schedule(this.jsonTask, 1000, 60000);
+        timer.schedule(this.jsonTask, 10000, 60000);
         return null;
     }
 }

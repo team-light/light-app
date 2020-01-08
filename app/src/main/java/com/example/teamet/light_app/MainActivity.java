@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
     private Spinner prefSpinner;
     private Spinner areaSpinner;
     private DataBaseMake dbm;
-    private JsonAsyncTask asyncTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         // DB作成
         dbm = new DataBaseMake(getApplicationContext());
 
-        asyncTask = new JsonAsyncTask(dbm.getReadableDatabase());
+        JsonAsyncTask asyncTask = new JsonAsyncTask(dbm.getReadableDatabase());
         asyncTask.execute();
 
 
@@ -38,14 +37,14 @@ public class MainActivity extends AppCompatActivity {
         setPrefSpinner();
     }
 
-    public void readData(String pref, String area) {
+    public void readData(String pref, String city) {
         SQLiteDatabase db = dbm.getReadableDatabase();
         StringBuilder sbuilder = new StringBuilder();
         Cursor target = db.query(
                 "alert_view",
                 null,
-                "pref_name=? AND area_name=?",
-                new String[] {pref, area},
+                "pref_name=? AND city_name=?",
+                new String[] {pref, city},
                 null,
                 null,
                 null
@@ -59,11 +58,11 @@ public class MainActivity extends AppCompatActivity {
 
 
             if (warn.equals("")) {
-                sbuilder.append(pref).append(" ").append(area).append("\n")
+                sbuilder.append(pref).append(" ").append(city).append("\n")
                         .append(datetime).append(" 発表\n\n")
                         .append("気象警報・注意報は発表されていません");
             } else {
-                sbuilder.append(pref).append(" ").append(area).append("\n")
+                sbuilder.append(pref).append(" ").append(city).append("\n")
                         .append(datetime).append(" 発表\n")
                         .append(warn).append("\n")
                         .append(message);
@@ -129,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setAreaSpinner(SQLiteDatabase db, int code,  String prefName) {
         Cursor area = db.query(
-                "area",
+                "city",
                 new String[] {"name"},
                 (code * 100000) + "<=code AND code<" + ((code + 1) * 100000),
                 null,
