@@ -3,7 +3,6 @@ package com.example.teamet.light_app;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
@@ -18,8 +17,6 @@ import java.util.Calendar;
 public class DataBaseMake extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "keihou.db";
-    private static final String TABLE_NAME = "keihoudb";
-    private static final String _ID = "_id";
 
     private Context context;
 
@@ -34,7 +31,7 @@ public class DataBaseMake extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE warn_info(time TEXT, pref INTEGER, city INTEGER PRIMARY KEY, alert TEXT, message TEXT)");
         db.execSQL("CREATE TABLE pref(code INTEGER PRIMARY KEY, name TEXT)");
         db.execSQL("CREATE TABLE city(code INTEGER PRIMARY KEY, name TEXT)");
-        db.execSQL("CREATE TABLE earthquake(code INTEGER PRIMARY KEY, time TEXT, hypocenter TEXT, north_lat REAL, east_long REAL, depth INTEGER, magnitude REAL, max_int TEXT, city_list TEXT)");
+        db.execSQL("CREATE TABLE eq_info(code INTEGER PRIMARY KEY, time TEXT, hypocenter TEXT, north_lat REAL, east_long REAL, depth INTEGER, magnitude REAL, max_int TEXT, city_list TEXT, message TEXT)");
 //        db.execSQL("CREATE TABLE alert(code INTEGER PRIMARY KEY, name TEXT)");
         Log.d("TAG", "onCreate");
         db.execSQL("CREATE VIEW alert_view AS SELECT time, pref.name pref_name, city.name city_name, alert, message FROM pref, city, warn_info WHERE warn_info.pref = pref.code AND warn_info.city = city.code");
@@ -72,7 +69,6 @@ public class DataBaseMake extends SQLiteOpenHelper {
                     ContentValues values = new ContentValues();
                     values.put("code", Integer.parseInt(str[0]));
                     values.put("name", str[1]);
-//                    values.put("message", "");
                     db.insert("pref", null, values);
                 }
             }
@@ -85,6 +81,7 @@ public class DataBaseMake extends SQLiteOpenHelper {
         Log.d("TAG", "readAreaData");
         AssetManager am = this.context.getAssets();
         String now = getDatetime();
+        Log.d("TAG", now);
         try{
             BufferedReader br = new BufferedReader(new InputStreamReader(am.open("area_data.csv")));
             String line;
@@ -96,6 +93,8 @@ public class DataBaseMake extends SQLiteOpenHelper {
                     values.put("code", code);
                     values.put("name", str[1]);
                     db.insert("city", null, values);
+
+                    Log.d("TAG", code + ":" + str[1]);
 
                     // init info
                     values.clear();

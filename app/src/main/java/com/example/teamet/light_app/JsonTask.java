@@ -3,6 +3,8 @@ package com.example.teamet.light_app;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,10 +23,21 @@ public class JsonTask extends TimerTask {
 
     private final String url = "http://ko-kon.sakura.ne.jp/light-app/json/data.json";
 
+    private MainActivity ma;
     private SQLiteDatabase db;
+    private TextView textView;
+    private Spinner prefSpinner;
+    private Spinner areaSpinner;
 
-    public JsonTask(SQLiteDatabase db) {
+
+//    public JsonTask(SQLiteDatabase db) {
+//        super();
+//        this.db = db;
+//    }
+
+    public JsonTask(MainActivity ma, SQLiteDatabase db) {
         super();
+        this.ma = ma;
         this.db = db;
     }
 
@@ -63,8 +76,9 @@ public class JsonTask extends TimerTask {
             JSONArray key = warn.names();
             for(int i = 0; i < key.length(); i++) {
                 JSONObject target = warn.getJSONObject(key.get(i).toString());
+                String datetime = target.getString("datetime");
                 ContentValues values = new ContentValues();
-                values.put("time", target.getString("datetime"));
+                if(!datetime.equals("")) values.put("time", target.getString("datetime"));
                 values.put("alert", target.getString("warn"));
                 values.put("message", target.getString("message"));
                 int city = target.getInt("city");
@@ -72,22 +86,27 @@ public class JsonTask extends TimerTask {
             }
 
             // 地震
-//            JSONArray earthquake = json.getJSONArray("earthquake");
-//            for(int i = 0; i < earthquake.length(); i++) {
-//                JSONObject target = (JSONObject)earthquake.get(i);
-//                ContentValues values = new ContentValues();
-//                values.put("time", target.getString("datetime"));
-//                values.put("hypocenter", target.getString("hypocenter"));
-//                values.put("north_lat", target.getDouble("north_lat"));
-//                values.put("east_long", target.getDouble("east_long"));
-//                values.put("depth", target.getInt("depth"));
-//                values.put("magnitude", target.getDouble("magnitude"));
-//                values.put("max_int", target.getString("max_int"));
-//                values.put("city_list", target.getJSONObject("city_name").toString());
-//                this.db.update("eq_info", values, "code=" + i, null);
-//            }
+            JSONArray earthquake = json.getJSONArray("earthquake");
+            for(int i = 0; i < earthquake.length(); i++) {
+                JSONObject target = (JSONObject)earthquake.get(i);
+                if(!target.toString().equals("{}")) {
+                    ContentValues values = new ContentValues();
+                    values.put("time", target.getString("datetime"));
+                    values.put("hypocenter", target.getString("hypocenter"));
+                    values.put("north_lat", target.getDouble("north_lat"));
+                    values.put("east_long", target.getDouble("east_long"));
+                    values.put("depth", target.getInt("depth"));
+                    values.put("magnitude", target.getDouble("magnitude"));
+                    values.put("max_int", target.getString("max_int"));
+                    values.put("city_list", target.getJSONObject("city_list").toString());
+                    values.put("message", target.getString("message"));
+                    this.db.update("eq_info", values, "code=" + i, null);
+                }
+            }
 
             Log.d(TAG, "end");
+
+            ma.reload();
 
             br.close();
         } catch (Exception e) {

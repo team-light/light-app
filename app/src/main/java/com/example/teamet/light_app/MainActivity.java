@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -25,19 +26,28 @@ public class MainActivity extends AppCompatActivity {
         // DB作成
         dbm = new DataBaseMake(getApplicationContext());
 
-        JsonAsyncTask asyncTask = new JsonAsyncTask(dbm.getReadableDatabase());
-        asyncTask.execute();
-
 
         // 変数textViewに表示するテキストビューのidを格納
         textView = findViewById(R.id.text_view);
         prefSpinner = findViewById(R.id.pref_spinner);
         areaSpinner = findViewById(R.id.area_spinner);
 
+        JsonAsyncTask asyncTask = new JsonAsyncTask(this, dbm.getReadableDatabase());
+        asyncTask.execute();
+
         setPrefSpinner();
     }
 
-    public void readData(String pref, String city) {
+    public void reload() {
+        String pref = (String)prefSpinner.getSelectedItem();
+        String city = (String)areaSpinner.getSelectedItem();
+//        Log.d("reload", pref + city);
+        if(!pref.equals("都道府県") && !city.equals("市区町村")) {
+            readData(pref, city);
+        }
+    }
+
+    private void readData(String pref, String city) {
         SQLiteDatabase db = dbm.getReadableDatabase();
         StringBuilder sbuilder = new StringBuilder();
         Cursor target = db.query(
@@ -88,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         );
         pref.moveToFirst();
         String[] list = new String[pref.getCount() + 1];
-        list[0] = "";
+        list[0] = "都道府県";
         for(int i = 0; i < pref.getCount(); i++) {
             list[i + 1] = pref.getString(0);
             pref.moveToNext();
@@ -113,8 +123,8 @@ public class MainActivity extends AppCompatActivity {
                         null
                 );
                 target.moveToFirst();
-                if(target.getCount() > 0) setAreaSpinner(db, target.getInt(0), selectedItem);
-                textView.setText(selectedItem);
+                if(target.getCount() > 0) setAreaSpinner(db, target.getInt(0));
+                if(!selectedItem.equals("都道府県")) textView.setText(selectedItem);
                 target.close();
             }
 
@@ -126,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void setAreaSpinner(SQLiteDatabase db, int code,  String prefName) {
+    private void setAreaSpinner(SQLiteDatabase db, int code) {
         Cursor area = db.query(
                 "city",
                 new String[] {"name"},
@@ -138,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         );
         area.moveToFirst();
         String[] list = new String[area.getCount() + 1];
-        list[0] = "";
+        list[0] = "市区町村";
         for(int i = 0; i < area.getCount(); i++) {
             list[i + 1] = area.getString(0);
             area.moveToNext();
