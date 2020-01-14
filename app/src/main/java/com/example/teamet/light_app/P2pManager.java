@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import java.net.InetAddress;
@@ -22,15 +21,14 @@ import java.util.List;
 public class P2pManager {
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
-    private Activity activity;
+    private Context context;
     private boolean isEnabled;
-    private List<String> peers = new ArrayList<>();
 
-    public P2pManager(Activity activity) {
-        this.activity = activity;
+    public P2pManager(Context context) {
+        this.context = context;
 
-        manager = (WifiP2pManager) activity.getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = manager.initialize(activity, activity.getMainLooper(), null);
+        manager = (WifiP2pManager) context.getSystemService(Context.WIFI_P2P_SERVICE);
+        channel = manager.initialize(context, context.getMainLooper(), null);
     }
 
     public void discoverPeers() {
@@ -75,41 +73,19 @@ public class P2pManager {
         } );
     }
 
-   public void requestPeers() {
+   public void requestPeers(final Consumer<List<WifiP2pDevice>> peerListListener) {
         manager.requestPeers(channel, new WifiP2pManager.PeerListListener() {
             @Override
             public void onPeersAvailable(WifiP2pDeviceList peers) {
                 showToast(successMsg("requestPeers"));
-
                 final List<WifiP2pDevice> ps = new ArrayList<>(peers.getDeviceList());
-
-                P2pManager.this.peers.clear();
-                for (WifiP2pDevice p : ps) {
-                    P2pManager.this.peers.add(p.deviceName + " (" + p.deviceAddress + ")");
-                }
-
-                ListView lv = ((ListView)activity.findViewById(R.id.listview1));
-                lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        WifiP2pConfig config = new WifiP2pConfig();
-                        config.deviceAddress = ps.get(position).deviceAddress;
-                        connect(config);
-                    }
-                });
-                ArrayAdapter adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_1, P2pManager.this.peers);
-                lv.setAdapter(adapter);
+                peerListListener.accept(ps);
             }
         } );
     }
 
     public void setIsEnabled(boolean isEnabled) {
         this.isEnabled = isEnabled;
-        ((Switch)activity.findViewById(R.id.switch1)).setChecked(isEnabled);
-    }
-
-    public List<String> getPeers() {
-        return peers;
     }
 
     public void requestIPAddr(final Consumer<InetAddress> callback) {
@@ -122,7 +98,7 @@ public class P2pManager {
     }
 
     private void showToast(String text) {
-        Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
     // エラーメッセージ生成

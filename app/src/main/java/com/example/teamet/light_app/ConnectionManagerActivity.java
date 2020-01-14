@@ -4,11 +4,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.support.v4.util.Consumer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -44,6 +48,8 @@ public class ConnectionManagerActivity extends AppCompatActivity {
 
     P2pManager pm;
 
+    private List<String> peers = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,13 +80,33 @@ public class ConnectionManagerActivity extends AppCompatActivity {
         ((Button)findViewById(R.id.button2)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pm.requestPeers();
+                pm.requestPeers(new Consumer<List<WifiP2pDevice>>() {
+                    @Override
+                    public void accept(final List<WifiP2pDevice> ps) {
+                        peers.clear();
+                        for (WifiP2pDevice p : ps) {
+                            peers.add(p.deviceName + " (" + p.deviceAddress + ")");
+                        }
+
+                        ListView lv = ((ListView)findViewById(R.id.listview1));
+                        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                WifiP2pConfig config = new WifiP2pConfig();
+                                config.deviceAddress = ps.get(position).deviceAddress;
+                                pm.connect(config);
+                            }
+                        });
+                        ArrayAdapter adapter = new ArrayAdapter<>(ConnectionManagerActivity.this, android.R.layout.simple_list_item_1, peers);
+                        lv.setAdapter(adapter);
+                    }
+                });
                 pm.requestIPAddr(new Consumer<InetAddress>() {
                     @Override
                     public void accept(InetAddress inetAddress) {
                         TextView tv = (TextView) findViewById(R.id.textView);
                         if (inetAddress == null) {
-                            tv.setText("Unknown owner IP a)ddress");
+                            tv.setText("Unknown owner IP address");
                         }
                         else {
                             tv.setText(inetAddress.toString());
@@ -103,6 +129,11 @@ public class ConnectionManagerActivity extends AppCompatActivity {
 
     private void onStopDiscovery() {
         pm.setIsEnabled(false);
+    }
+
+    private void setIsEnabled(boolean isEnabled) {
+        pm.setIsEnabled(isEnabled);
+        ((Switch)this.findViewById(R.id.switch1)).setChecked(isEnabled);
     }
 
     public void onResume() {

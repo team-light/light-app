@@ -6,8 +6,17 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.util.Consumer;
+
+import java.net.InetAddress;
+import java.util.concurrent.TimeoutException;
 
 public class Router extends Service {
+    private InetAddress addr = null;
+    private P2pManager pm = null;
+
+    private final long WAIT_MILLI_SEC_REQUEST_IP_ADDR = 1000;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -19,19 +28,34 @@ public class Router extends Service {
         Notification notification =
             (new NotificationCompat.Builder(this, "Light-App Router"))
                 .setContentTitle("Light-App Router")
+                .setContentText("Running Light-App Router")
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .build();
 
-        new Thread (
-            new Runnable() {
-                @Override
-                public void run() {
+        startForeground(startId, notification);
 
-                }
-            }
-        );
-
-        startForeground(1, notification);
+        pm = new P2pManager(this);
 
         return START_STICKY;
+    }
+
+    public InetAddress getIPAddr() throws Exception {
+        if (addr == null) {
+            requestIPAddr();
+            Thread.sleep(WAIT_MILLI_SEC_REQUEST_IP_ADDR);
+        }
+        if (addr == null) {
+            throw new Exception("ip address request timeout");
+        }
+        return addr;
+    }
+
+    public void requestIPAddr() {
+        pm.requestIPAddr(new Consumer<InetAddress>() {
+            @Override
+            public void accept(InetAddress inetAddress) {
+                Router.this.addr = inetAddress;
+            }
+        });
     }
 }

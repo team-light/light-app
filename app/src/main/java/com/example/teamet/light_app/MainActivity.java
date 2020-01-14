@@ -50,5 +50,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, SubActivity.class));
             }
         });
+
+        Intent serviceIntent = new Intent(getApplication(), Router.class);
+        startService(serviceIntent);
     }
 }
