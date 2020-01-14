@@ -1,5 +1,7 @@
 package com.example.teamet.light_app;
 
+import android.widget.TextView;
+
 import java.io.*;
 import java.net.*;
 
@@ -7,9 +9,11 @@ public class ConnectToClient extends Thread {
     private Socket sc;
     private PrintWriter pw;
     private BufferedReader br;
+    private TextView result;
 
-    public ConnectToClient(Socket s){
+    public ConnectToClient(Socket s, TextView tx){
         sc = s;
+        result = tx;
     }
 
     public void run(){
@@ -22,6 +26,7 @@ public class ConnectToClient extends Thread {
         while(true){
             try{
                 String str = br.readLine();
+                result.setText(str);
             }catch(Exception e){
                 try{
                     br.close();

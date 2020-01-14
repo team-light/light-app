@@ -5,4 +5,6 @@
     <string name="peers_discovery">Peers Discovery</string>
     <string name="connect">connect</string>
     <string name="textview">TextView</string>
+    <string name="connecting">connecting</string>
+    <string name ="disconnect">disconnect</string>
 </resources>
