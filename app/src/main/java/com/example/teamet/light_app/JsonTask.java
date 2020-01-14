@@ -75,14 +75,14 @@ public class JsonTask extends TimerTask {
             JSONObject warn = json.getJSONObject("warn");
             JSONArray key = warn.names();
             for(int i = 0; i < key.length(); i++) {
-                JSONObject target = warn.getJSONObject(key.get(i).toString());
+                int code = Integer.parseInt(key.get(i).toString());
+                JSONObject target = warn.getJSONObject(code + "");
                 String datetime = target.getString("datetime");
                 ContentValues values = new ContentValues();
                 if(!datetime.equals("")) values.put("time", target.getString("datetime"));
                 values.put("alert", target.getString("warn"));
                 values.put("message", target.getString("message"));
-                int city = target.getInt("city");
-                this.db.update("warn_info", values, "city=" + city, null);
+                this.db.update("warn_info", values, "city=" + code, null);
             }
 
             // 地震
