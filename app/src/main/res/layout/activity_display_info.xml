@@ -32,24 +32,36 @@
         app:layout_constraintTop_toBottomOf="@+id/textView2">
 
         <TextView
-            android:id="@+id/textView16"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/background_light"
-            android:text="@string/fab_text_hazard"
-            android:textColor="@android:color/black"
+            android:id="@+id/text_view"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_marginTop="180dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:text=""
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Spinner
+            android:id="@+id/pref_spinner"
+            android:layout_width="150dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="70dp"
+            android:layout_marginStart="30dp"
+            android:background="#F0F0F0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="2019-12-05T08:53:44Z 大雪注意報 12 上川地方 012010 2019-12-05T08:53:44Z なだれ注意報 22 上川地方 012010 2019-12-05T08:53:44Z 大雪注意報 12 留萌地方 012020 2019-12-05T08:53:44Z 風雪注意報 13 留萌地方 012020 2019-12-05T08:53:44Z なだれ注意報 22 留萌地方 012020 2019-12-05T08:53:44Z なだれ注意報 22 上川北部 012011 2019-12-05T08:53:44Z 大雪注意報 12 上川北部 012011 2019-12-05T08:53:44Z なだれ注意報 22 上川中部 012012 2019-12-05T08:53:44Z なだれ注意報 22 上川南部 012013 2019-12-05T08:53:44Z 風雪注意報 13 留萌北部 012021 2019-12-05T08:53:44Z 大雪注意報 12 留萌中部 012022 2019-12-05T08:53:44Z 風雪注意報 13 留萌中部 012022 2019-12-05T08:53:44Z なだれ注意報 22  留萌中部 012022 2019-12-05T08:53:44Z 大雪注意報 12 留萌南部 012023 2019-12-05T08:53:44Z 風雪注意報 13 留萌南部 012023 2019-12-05T08:53:44Z なだれ注意報 22 留萌南部 012023 2019-12-05T08:53:44Z なだれ注意報 22 旭川市 0120400 2019-12-05T08:53:44Z 大雪注意報 12 留萌市 0121200 2019-12-05T08:53:44Z 風雪注意報 13 留萌市 0121200 2019-12-05T08:53:44Z なだれ注意報 22  留萌市 0121200 2019-12-05T08:53:44Z 大雪注意報 12 士別市 0122000 2019-12-05T08:53:44Z なだれ注意報 22  士別市 0122000 2019-12-05T08:53:44Z 大雪注意報 12 名寄市 0122100 2019-12-05T08:53:44Z なだれ注意報 22  名寄市 0122100 "
-            app:layout_constraintBottom_toBottomOf="parent"
+        <Spinner
+            android:id="@+id/area_spinner"
+            android:layout_width="150dp"
+            android:layout_height="29dp"
+            android:layout_marginTop="70dp"
+            android:layout_marginEnd="30dp"
+            android:background="#F0F0F0"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView16" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
 
@@ -80,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:gravity="right"
+            android:gravity="end"
             android:orientation="horizontal"
             android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="@id/displayInfo_fab_info"
@@ -112,7 +124,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:gravity="right"
+            android:gravity="end"
             android:orientation="horizontal"
             android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="@id/displayInfo_fab_info"
@@ -145,7 +157,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:gravity="right"
+            android:gravity="end"
             android:orientation="horizontal"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="@id/displayInfo_fab_info"
@@ -167,10 +179,10 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
+                android:visibility="invisible"
                 app:backgroundTint="@color/fabColor"
                 app:fabSize="mini"
-                app:srcCompat="@mipmap/ic_launcher_round"
-                android:visibility="invisible" />
+                app:srcCompat="@mipmap/ic_launcher_round" />
         </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>

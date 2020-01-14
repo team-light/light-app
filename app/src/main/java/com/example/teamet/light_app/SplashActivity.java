@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Handler;
+import android.support.v4.app.AppLaunchChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,14 +21,18 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_splash);
-        try {
-            copy2Local();
-        } catch (IOException e) {
 
+        if(!AppLaunchChecker.hasStartedFromLauncher(this)){
+            try {
+                Log.v("Splash", "file_copy");
+                copy2Local();
+            } catch (IOException e) {
+
+            }
         }
 
         Handler hdl = new Handler();
-        hdl.postDelayed(new splashHandler(), 2000);
+        hdl.postDelayed(new splashHandler(), 1000);
     }
 
     class splashHandler implements Runnable {
