@@ -25,7 +25,6 @@
         android:layout_marginTop="288dp"
         android:layout_marginBottom="130dp"
         android:textAlignment="center"
-        android:textSize="20"
         app:layout_constraintBottom_toTopOf="@+id/transition"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
