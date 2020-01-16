@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+
 public class MainActivity extends AppCompatActivity {
     private TextView textView;
     private Spinner prefSpinner;
@@ -44,6 +45,49 @@ public class MainActivity extends AppCompatActivity {
 //        Log.d("reload", pref + city);
         if(!pref.equals("都道府県") && !city.equals("市区町村")) {
             readData(pref, city);
+        }
+
+        try {
+            final String TAG = "Earthquake";
+            SQLiteDatabase db = dbm.getReadableDatabase();
+            StringBuilder sbuilder = new StringBuilder();
+            Cursor target = db.query(
+                    "eq_info",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            target.moveToFirst();
+            Log.d(TAG, "" + target.getCount());
+//            for (int i = 0; i < target.getCount(); i++) {
+            for (int i = 0; i < 1; i++) {
+                String datetime = target.getString(1);
+                String hypocenter = target.getString(2);
+                double north_lat = target.getDouble(3);
+                double east_long = target.getDouble(4);
+                int depth = target.getInt(5);
+                double magnitude = target.getDouble(6);
+                String max_int = target.getString(7);
+                String city_list = target.getString(8);
+                String message = target.getString(9);
+
+                sbuilder.append("\n");
+                sbuilder.append("発生時刻: ").append(datetime).append("\n");
+                sbuilder.append("震源: ").append(hypocenter).append("\n");
+                sbuilder.append("北緯: ").append(north_lat).append(", 東経: ").append(east_long).append("\n");
+                sbuilder.append("深さ: ").append(depth / 1000).append("km\n");
+                sbuilder.append("マグニチュード: ").append(magnitude).append("\n");
+                sbuilder.append(city_list).append("\n");
+                sbuilder.append(message).append("\n");
+                Log.d(TAG, sbuilder.toString());
+
+                target.moveToNext();
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
         }
     }
 
