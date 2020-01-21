@@ -1,7 +1,11 @@
 package com.example.teamet.light_app;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -52,6 +56,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Intent serviceIntent = new Intent(getApplication(), Router.class);
+        String channelID = "com.light-app.test";
+        CharSequence channelName = "light-app channel";
+        if(Build.VERSION.SDK_INT >= 26){
+            NotificationChannel channel = new NotificationChannel(channelID, channelName, NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            manager.createNotificationChannel(channel);
+        }
         startService(serviceIntent);
     }
 }

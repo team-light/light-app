@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.Enumeration;
 
 public class Server extends AsyncTask<String, Void, String> {
     public static final int PORT = 0;
@@ -37,14 +38,6 @@ public class Server extends AsyncTask<String, Void, String> {
     }
 
     public void connect(){
-        try{
-            InetAddress addr = InetAddress.getLocalHost();
-            ip.setText(String.valueOf(addr.getHostAddress()));
-        }catch(UnknownHostException e){
-            toast = Toast.makeText(co, e.toString(), duration);
-            toast.show();
-        }
-
         try{
             ServerSocket ss = new ServerSocket(PORT);
             portT.setText(String.valueOf(ss.getLocalPort()));

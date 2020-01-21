@@ -26,14 +26,14 @@ public class Router extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Notification notification =
-            (new NotificationCompat.Builder(this, "Light-App Router"))
+            (new NotificationCompat.Builder(this, "com.light-app.test"))
                 .setContentTitle("Light-App Router")
                 .setContentText("Running Light-App Router")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .build();
 
         startForeground(startId, notification);
-
+        
         pm = new P2pManager(this);
 
         return START_STICKY;
