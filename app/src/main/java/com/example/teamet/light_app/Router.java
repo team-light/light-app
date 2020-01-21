@@ -33,7 +33,7 @@ public class Router extends Service {
                 .build();
 
         startForeground(startId, notification);
-        
+
         pm = new P2pManager(this);
 
         return START_STICKY;
