@@ -7,15 +7,26 @@
     android:layout_height="match_parent"
     tools:context=".DisplayInfoActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/displayInfo_toolbar"
+        android:layout_width="411dp"
+        android:layout_height="59dp"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:text="情報の表示画面（デモ）"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/displayInfo_toolbar" />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/displayInfo_hazrd"

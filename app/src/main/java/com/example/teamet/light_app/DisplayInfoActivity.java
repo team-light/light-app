@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,6 +25,9 @@ public class DisplayInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_info);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.displayInfo_toolbar);
+        setSupportActionBar(toolbar);
 
         dbm = new DataBaseMake(getApplicationContext());
 

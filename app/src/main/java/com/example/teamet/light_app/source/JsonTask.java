@@ -41,7 +41,6 @@ public class JsonTask extends TimerTask {
         Log.d(TAG, "getInfo");
 
         try {
-            // 通信部との連携が必要
             HttpURLConnection con = (HttpURLConnection)new URL(this.url).openConnection();
             con.setReadTimeout(this.READ_TIMEOUT);
             con.setConnectTimeout(this.CONNECT_TIMEOUT);
@@ -90,7 +89,7 @@ public class JsonTask extends TimerTask {
                     values.put("depth", target.getInt("depth"));
                     values.put("magnitude", target.getDouble("magnitude"));
                     values.put("max_int", target.getString("max_int"));
-                    values.put("city_list", target.getJSONObject("city_list").toString());
+                    values.put("city_list", target.getString("city_list"));
                     values.put("message", target.getString("message"));
                     this.db.update("eq_info", values, "code=" + i, null);
                 }

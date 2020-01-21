@@ -1,11 +1,11 @@
 package com.example.teamet.light_app.database;
 
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -17,6 +17,7 @@ import java.util.Calendar;
 public class DataBaseMake extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "keihou.db";
+    private final int EQ_LENGTH = 30;
 
     private Context context;
 
@@ -35,10 +36,16 @@ public class DataBaseMake extends SQLiteOpenHelper {
 //        db.execSQL("CREATE TABLE alert(code INTEGER PRIMARY KEY, name TEXT)");
         Log.d("TAG", "onCreate");
         db.execSQL("CREATE VIEW alert_view AS SELECT time, pref.name pref_name, city.name city_name, alert, message FROM pref, city, warn_info WHERE warn_info.pref = pref.code AND warn_info.city = city.code");
-        db.execSQL("CREATE VIEW earthquake_view AS SELECT time, hypocenter, north_lat, east_long, depth, magnitude, max_int, city_list FROM pref, city, earthquake");
+        db.execSQL("CREATE VIEW earthquake_view AS SELECT time, hypocenter, north_lat, east_long, depth, magnitude, max_int, city_list, message FROM eq_info");
 
         readAreaData(db);
         readPrefData(db);
+
+        for(int i = 0; i < EQ_LENGTH; i++) {
+            ContentValues values = new ContentValues();
+            values.put("code", i);
+            db.insert("eq_info", null, values);
+        }
     }
 
     @Override

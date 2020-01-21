@@ -12,7 +12,6 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_splash);
 
 //        ネットワークの設定
@@ -20,6 +19,12 @@ public class SplashActivity extends AppCompatActivity {
         if(!AppLaunchChecker.hasStartedFromLauncher(this)){
             /*
                 アプリ初起動時の通信（データベースの受け取り）
+
+                インターネット(公衆Wi－Fi)につながっているデバイス:
+                    インターネット上からjsonファイルをとってくる
+
+                インターネットに未接続のデバイス:
+                    ネットワーク上のデバイスからjsonファイルをもらう
             */
         }
 
