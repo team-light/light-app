@@ -12,33 +12,47 @@ import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import java.lang.reflect.Array;
+
 public class MainActivity extends AppCompatActivity {
+
+    LinearLayout[] fabs;
+    LinearLayout fab_alarm;
+    LinearLayout fab_earthquake;
+    LinearLayout fab_map;
+    LinearLayout fab_net;
+    LinearLayout fab_close;
+    ObjectAnimator animator_fabs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    }
 
-//    ネットワーク設定
-    public void netSet(View view){
-        Log.v("Function", "netSet");
+        fab_alarm = findViewById(R.id.alarm);
+        fab_earthquake = findViewById(R.id.earthquake);
+        fab_map = findViewById(R.id.map);
 
-        Intent intent = new Intent(this, NetworkSetActivity.class);
-        startActivity(intent);
+        fabs = new LinearLayout[3];
+        fabs[0] = fab_alarm;
+        fabs[1] = fab_earthquake;
+        fabs[2] = fab_map;
+
+        fab_net = findViewById(R.id.net);
+        fab_close = findViewById(R.id.close);
     }
 
 //    情報の表示
-    public void pushTrainFab(View view){
+    public void pushAlarmFab(View view){
         Intent intent = new Intent(this, DisplayInfoActivity.class);
-        intent.putExtra("type", "TRAIN");
+        intent.putExtra("type", "ALERT");
 
         dispInfo(intent);
     }
 
-    public void pushHazardFab(View view){
+    public void pushEarthquakeFab(View view){
         Intent intent = new Intent(this, DisplayInfoActivity.class);
-        intent.putExtra("type", "HAZARD");
+        intent.putExtra("type", "EARTHQUAKE");
 
         dispInfo(intent);
     }
@@ -62,6 +76,14 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    //    ネットワーク設定
+    public void netSet(View view){
+        Log.v("Function", "netSet");
+
+        Intent intent = new Intent(this, NetworkSetActivity.class);
+        startActivity(intent);
+    }
+
 //    アプリの終了
     public void closeApp(View view){
         this.finish();
@@ -70,15 +92,16 @@ public class MainActivity extends AppCompatActivity {
 //    fabの制御
     private enum ButtonState{
         OPEN,
-        CLOESE
+        CLOSE
     }
-    private ButtonState buttonState = ButtonState.CLOESE;
 
-    public void infofab(View view){
-        Log.v("button", "infofab");
+    private ButtonState buttonState = ButtonState.CLOSE;
+
+    public void infoFab(View view){
+        Log.v("button", "infoFab");
         int iconWhile = (int) convertDp2Px(56, this.getApplicationContext());
 
-        if (buttonState == ButtonState.CLOESE){
+        if (buttonState == ButtonState.CLOSE){
             fabOpen(iconWhile);
         }else{
             fabClose();
@@ -91,68 +114,64 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void fabOpen(int iconWhile){
-        int fabsid[] = {R.id.train, R.id.hazard, R.id.map};
-        LinearLayout linearLayout;
-
-        ObjectAnimator animator;
-        for(int i=0; i<3; i++){
-            linearLayout = findViewById(fabsid[i]);
-            linearLayout.setVisibility(View.VISIBLE);
-            animator = ObjectAnimator.ofFloat(linearLayout, "translationY", iconWhile*i + convertDp2Px(64, this.getApplicationContext()));
-            animator.setDuration(200);
-            animator.start();
+        for(int i=0; i<fabs.length; i++){
+            fabs[i].setVisibility(View.VISIBLE);
+            animator_fabs = ObjectAnimator.ofFloat(fabs[i], "translationY", iconWhile*i + convertDp2Px(64, this.getApplicationContext()));
+            animator_fabs.setDuration(200);
+            animator_fabs.start();
         }
 
-        linearLayout = findViewById(R.id.close);
-        animator = ObjectAnimator.ofFloat(linearLayout, "translationY", convertDp2Px(168, this.getApplicationContext()));
-        animator.setDuration(200);
-        animator.start();
+        animator_fabs = ObjectAnimator.ofFloat(fab_net, "translationY", convertDp2Px(168, this.getApplicationContext()));
+        animator_fabs.setDuration(200);
+        animator_fabs.start();
+
+        animator_fabs = ObjectAnimator.ofFloat(fab_close, "translationY", convertDp2Px(168, this.getApplicationContext()));
+        animator_fabs.setDuration(200);
+        animator_fabs.start();
 
         buttonState = ButtonState.OPEN;
     }
 
     public void fabClose(){
-        ObjectAnimator animator;
-        LinearLayout trainfab = findViewById(R.id.train);
-        animator = ObjectAnimator.ofFloat(trainfab, "translationY", 0);
-        animator.setDuration(200);
-        animator.addListener(new AnimatorListenerAdapter(){
+        animator_fabs = ObjectAnimator.ofFloat(fab_alarm, "translationY", 0);
+        animator_fabs.setDuration(200);
+        animator_fabs.addListener(new AnimatorListenerAdapter(){
             @Override
-            public void onAnimationEnd(Animator animator1){
-                trainfab.setVisibility(View.GONE);
-                super.onAnimationEnd(animator1);
+            public void onAnimationEnd(Animator animator){
+                fab_alarm.setVisibility(View.GONE);
+                super.onAnimationEnd(animator);
             }
         });
-        animator.start();
+        animator_fabs.start();
 
-        LinearLayout hazardfab = findViewById(R.id.hazard);
-        animator = ObjectAnimator.ofFloat(hazardfab, "translationY", 0);
-        animator.setDuration(200);
-        animator.addListener(new AnimatorListenerAdapter(){
+        animator_fabs = ObjectAnimator.ofFloat(fab_earthquake, "translationY", 0);
+        animator_fabs.setDuration(200);
+        animator_fabs.addListener(new AnimatorListenerAdapter(){
             @Override
-            public void onAnimationEnd(Animator animator1){
-                hazardfab.setVisibility(View.GONE);
-                super.onAnimationEnd(animator1);
+            public void onAnimationEnd(Animator animator){
+                fab_earthquake.setVisibility(View.GONE);
+                super.onAnimationEnd(animator);
             }
         });
-        animator.start();
+        animator_fabs.start();
 
-        LinearLayout mapfab = findViewById(R.id.map);
-        animator = ObjectAnimator.ofFloat(mapfab, "translationY", 0);
-        animator.setDuration(200);
-        animator.addListener(new AnimatorListenerAdapter(){
+        animator_fabs = ObjectAnimator.ofFloat(fab_map, "translationY", 0);
+        animator_fabs.setDuration(200);
+        animator_fabs.addListener(new AnimatorListenerAdapter(){
             @Override
-            public void onAnimationEnd(Animator animator1){
-                mapfab.setVisibility(View.GONE);
-                super.onAnimationEnd(animator1);
+            public void onAnimationEnd(Animator animator){
+                fab_map.setVisibility(View.GONE);
+                super.onAnimationEnd(animator);
             }
         });
-        animator.start();
+        animator_fabs.start();
 
-        LinearLayout close = findViewById(R.id.close);
-        animator = ObjectAnimator.ofFloat(close, "translationY", 0);
-        animator.start();
+        animator_fabs = ObjectAnimator.ofFloat(fab_net, "translationY", 0);
+        animator_fabs.start();
 
-        buttonState = ButtonState.CLOESE;
+        animator_fabs = ObjectAnimator.ofFloat(fab_close, "translationY", 0);
+        animator_fabs.start();
+
+        buttonState = ButtonState.CLOSE;
     }
 }

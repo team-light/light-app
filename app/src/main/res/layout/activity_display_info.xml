@@ -105,7 +105,7 @@
                 android:layout_marginRight="16dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="@string/fab_text_train" />
+                android:text="@string/fab_text_earthquake" />
 
             <android.support.design.widget.FloatingActionButton
                 android:layout_width="wrap_content"

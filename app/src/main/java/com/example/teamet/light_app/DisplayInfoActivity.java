@@ -5,12 +5,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.example.teamet.light_app.database.DataBaseMake;
+import com.example.teamet.light_app.source.JsonAsyncTask;
 
 public class DisplayInfoActivity extends AppCompatActivity {
     private TextView textView;

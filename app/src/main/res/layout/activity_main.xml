@@ -13,7 +13,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:text="トップ画面（デモ）"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -30,11 +29,13 @@
             android:id="@+id/net"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:gravity="end"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/info">
 
             <TextView
                 android:id="@+id/textView8"
@@ -64,13 +65,12 @@
             android:id="@+id/info"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:gravity="end"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="@+id/net"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/net"
-            app:layout_constraintTop_toBottomOf="@+id/net">
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:id="@+id/textView9"
@@ -90,51 +90,14 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                android:onClick="infofab"
+                android:onClick="infoFab"
                 app:backgroundTint="#00E0C7"
                 app:srcCompat="@android:drawable/ic_menu_info_details" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/train"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:gravity="end"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@+id/info"
-            app:layout_constraintStart_toStartOf="@+id/info"
-            app:layout_constraintTop_toTopOf="@+id/info">
-
-            <TextView
-                android:id="@+id/textView10"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/fab_text_train"
-                android:textSize="18sp" />
-
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/floatingActionButton12"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                app:backgroundTint="#00E0C7"
-                app:fabSize="mini"
-                app:srcCompat="@drawable/ic_launcher_background" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/hazard"
+            android:id="@+id/alarm"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -165,10 +128,48 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                android:onClick="pushHazardFab"
+                android:onClick="pushAlarmFab"
                 app:backgroundTint="#00E0C7"
                 app:fabSize="mini"
-                app:srcCompat="@drawable/ic_launcher_foreground" />
+                app:srcCompat="@drawable/ic_alarm" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/earthquake"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="end"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@+id/info"
+            app:layout_constraintStart_toStartOf="@+id/info"
+            app:layout_constraintTop_toTopOf="@+id/info">
+
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/fab_text_earthquake"
+                android:textSize="18sp" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/floatingActionButton12"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="pushEarthquakeFab"
+                app:backgroundTint="#00E0C7"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_launcher_background" />
         </LinearLayout>
 
         <LinearLayout
@@ -217,8 +218,9 @@
             android:gravity="end"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="@+id/net"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/net"
-            app:layout_constraintTop_toBottomOf="@+id/info">
+            app:layout_constraintTop_toBottomOf="@+id/net">
 
             <TextView
                 android:id="@+id/textView13"
