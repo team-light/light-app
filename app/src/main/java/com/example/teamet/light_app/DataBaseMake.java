@@ -1,21 +1,22 @@
 package com.example.teamet.light_app;
 
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 
 public class DataBaseMake extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 3;
-    private static final String DATABASE_NAME = "right.db";
+    private static final String DATABASE_NAME = "keihou.db";
 
     private Context context;
 
@@ -30,15 +31,17 @@ public class DataBaseMake extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE warn_info(time TEXT, pref INTEGER, city INTEGER PRIMARY KEY, alert TEXT, message TEXT)");
         db.execSQL("CREATE TABLE pref(code INTEGER PRIMARY KEY, name TEXT)");
         db.execSQL("CREATE TABLE city(code INTEGER PRIMARY KEY, name TEXT)");
-        db.execSQL("CREATE TABLE earthquake(code INTEGER PRIMARY KEY, time TEXT, hypocenter TEXT, north_lat REAL, east_long REAL, depth INTEGER, magnitude REAL, max_int TEXT, city_list TEXT)");
+        db.execSQL("CREATE TABLE eq_info(code INTEGER PRIMARY KEY, time TEXT, hypocenter TEXT, north_lat REAL, east_long REAL, depth INTEGER, magnitude REAL, max_int TEXT, city_list TEXT, message TEXT)");
 //        db.execSQL("CREATE TABLE alert(code INTEGER PRIMARY KEY, name TEXT)");
         Log.d("TAG", "onCreate");
-        db.execSQL("CREATE VIEW alert_view AS SELECT time, pref.name, city.name, alert, message FROM pref, city, info WHERE info.pref = pref.code AND info.city = city.code");
-        db.execSQL("CREATE VIEW earthquake_view AS SELECT time, hypocenter, north_lat, east_long, depth, magnitude, max_int, city_list FROM pref, city, earthquake");
-//        insert_info(db, "19/12/6 15:30",  1, 110000, "heavy snow");
-//        insert_info(db, "19/12/6 16:21", 1, 121300, "terrible typhoon");
-//        insert_info(db, "19/12/7 15:00", 13, 1310200, "LEVEL10 Earthquake");
-//        insert_info(db, "19/12/8 19:00", 40, 4056700, "matsubayasi");
+        db.execSQL("CREATE VIEW alert_view AS SELECT time, pref.name pref_name, city.name city_name, alert, message FROM pref, city, warn_info WHERE warn_info.pref = pref.code AND warn_info.city = city.code");
+//        db.execSQL("CREATE VIEW earthquake_view AS SELECT time, hypocenter, north_lat, east_long, depth, magnitude, max_int, city_list, message FROM pref, city, earthquake");
+
+        for (int i=0;i<30;i++){
+            ContentValues values = new ContentValues();
+            values.put("code", i);
+            db.insert("eq_info",null,values);
+        }
         readAreaData(db);
         readPrefData(db);
     }
@@ -46,9 +49,10 @@ public class DataBaseMake extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
 
-        db.execSQL("DROP TABLE IF EXISTS info");
+        db.execSQL("DROP TABLE IF EXISTS warn_info");
         db.execSQL("DROP TABLE IF EXISTS pref");
         db.execSQL("DROP TABLE IF EXISTS city");
+        db.execSQL("DROP TABLE IF EXISTS earthquake");
         onCreate(db);
     }
 
@@ -58,17 +62,7 @@ public class DataBaseMake extends SQLiteOpenHelper {
 
     }
 
-    public void insert_info(SQLiteDatabase db, String time, int pref, int city, String alert){
-        ContentValues values = new ContentValues();
-        values.put("time",time);
-        values.put("pref",pref);
-        values.put("city",city);
-        values.put("alert", alert);
-        db.insert("info", null, values);
-
-    }
-
-    public void readPrefData(SQLiteDatabase db){
+    private void readPrefData(SQLiteDatabase db){
         Log.d("TAG", "readPrefData");
         AssetManager am = this.context.getAssets();
         try{
@@ -80,40 +74,50 @@ public class DataBaseMake extends SQLiteOpenHelper {
                     ContentValues values = new ContentValues();
                     values.put("code", Integer.parseInt(str[0]));
                     values.put("name", str[1]);
-                    values.put("message", "");
                     db.insert("pref", null, values);
                 }
             }
         }catch(Exception e){
             e.printStackTrace();
-        }finally{
-//            try{
-//                am.close();
-//            }catch(Exception e){
-//                e.printStackTrace();
-//            }
         }
     }
-    public void readAreaData(SQLiteDatabase db){
+
+    private void readAreaData(SQLiteDatabase db){
         Log.d("TAG", "readAreaData");
         AssetManager am = this.context.getAssets();
+        String now = getDatetime();
+        Log.d("TAG", now);
         try{
             BufferedReader br = new BufferedReader(new InputStreamReader(am.open("area_data.csv")));
             String line;
             while((line = br.readLine()) != null){
                 String[] str = line.split(",");
                 if(str.length >= 2) {
-                    int code = Integer.parseInt(str[0]);
                     ContentValues values = new ContentValues();
+                    int code = Integer.parseInt(str[0]);
                     values.put("code", code);
                     values.put("name", str[1]);
                     db.insert("city", null, values);
 
-                    insert_info(db, "", code / 100000, code, "");
+                    Log.d("TAG", code + ":" + str[1]);
+
+                    // init info
+                    values.clear();
+                    values.put("time", now);
+                    values.put("pref", code / 100000);
+                    values.put("city", code);
+                    values.put("alert", "");
+                    values.put("message", "");
+                    db.insert("warn_info", null, values);
                 }
             }
         }catch(Exception e){
             e.printStackTrace();
         }
     }
+
+    private String getDatetime() {
+        return new SimpleDateFormat("yyyy年MM月dd日 HH:mm").format(Calendar.getInstance().getTime());
+    }
+
 }

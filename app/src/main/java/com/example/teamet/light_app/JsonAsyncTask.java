@@ -1,11 +1,7 @@
 package com.example.teamet.light_app;
 
-import android.annotation.SuppressLint;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
