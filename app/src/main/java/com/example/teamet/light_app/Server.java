@@ -6,6 +6,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.*;
 import java.util.Enumeration;
 
@@ -33,8 +34,18 @@ public class Server extends AsyncTask<String, Void, String> {
         return null;
     }
 
-    protected  void onPostExecute(String result){
+    protected void onPostExecute(String result){
 
+    }
+
+    public void saveJson(String data){
+        try {
+            PrintWriter pw = new PrintWriter("assets\\data.json", "UTF-8");
+            pw.print(data);
+            pw.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 
     public void connect(){

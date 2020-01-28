@@ -38,8 +38,23 @@ public class Client extends AsyncTask<String, Void, String> {
     }
 
     protected  void onPostExecute(String result){
-        toast = Toast.makeText(context, "送信成功", duration);
-        toast.show();
+        //toast = Toast.makeText(context, "送信成功", duration);
+        //toast.show();
+    }
+
+    public void sendJsonFile(){
+        try {
+            json = new File("assets\\data.json");
+            jsonBR = new BufferedReader(new InputStreamReader(new FileInputStream(json), "UTF-8"));
+            String str = jsonBR.readLine();//送信するjsonファイルが1行のみである前提で1行しか読み込ませない
+            pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
+            pw.println(str);
+            pw.flush();
+        }catch(IOException e){
+            //toast = Toast.makeText(context, "ファイルの入出力中にエラーが発生しました"+e.toString(), duration);
+            //toast.show();
+            e.printStackTrace();
+        }
     }
 
     public void Connect(){
@@ -49,21 +64,14 @@ public class Client extends AsyncTask<String, Void, String> {
         try {
             sc = new Socket(HOST, PORT);
             br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
-
-            json = new File("assets\\data.json");
-            jsonBR = new BufferedReader(new InputStreamReader(new FileInputStream(json), "UTF-8"));
-            String str = jsonBR.readLine();//送信するjsonファイルが1行のみである前提で1行しか読み込ませない
-
-            pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
-            pw.println(str);
-            pw.flush();
+            sendJsonFile();
         }catch (UnknownHostException e){
-            toast = Toast.makeText(context, "ホストが特定できませんでした", duration);
-            toast.show();
+            //toast = Toast.makeText(context, "ホストが特定できませんでした", duration);
+            //toast.show();
             e.printStackTrace();
         }catch(Exception e){
-            toast = Toast.makeText(context, "入出力中にエラーが発生しました: " + e.toString(), duration);
-            toast.show();
+            //toast = Toast.makeText(context, "入出力中にエラーが発生しました: " + e.toString(), duration);
+            //toast.show();
             e.printStackTrace();
         }
     }
