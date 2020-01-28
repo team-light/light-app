@@ -58,6 +58,8 @@ public class Router extends Service {
                                 pm.requestIPAddr(new Consumer<InetAddress>() {
                                     @Override
                                     public void accept(InetAddress inetAddress) {
+                                        if (inetAddress == null) return;
+
                                         try {
                                             Socket sc = new Socket(inetAddress, PORT);
                                             sc.close();

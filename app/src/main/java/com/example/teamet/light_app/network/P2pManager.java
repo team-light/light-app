@@ -111,7 +111,12 @@ public class P2pManager {
         manager.requestGroupInfo(channel, new WifiP2pManager.GroupInfoListener() {
             @Override
             public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
-                consumer.accept(wifiP2pGroup.isGroupOwner());
+                if (wifiP2pGroup == null) {
+                    consumer.accept(false);
+                }
+                else {
+                    consumer.accept(wifiP2pGroup.isGroupOwner());
+                }
             }
         });
     }
