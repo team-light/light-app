@@ -23,7 +23,6 @@ public class Client extends AsyncTask<String, Void, String> {
     private int duration = Toast.LENGTH_SHORT;
     private Toast toast;
     private File json;
-    private FileReader fr;
     private BufferedReader jsonBR;
 
     public Client(EditText editText, EditText ipText, EditText portText, Context co){
@@ -52,8 +51,7 @@ public class Client extends AsyncTask<String, Void, String> {
             br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
 
             json = new File("assets\\data.json");
-            fr = new FileReader(json);
-            jsonBR = new BufferedReader(fr);
+            jsonBR = new BufferedReader(new InputStreamReader(new FileInputStream(json), "UTF-8"));
             String str = jsonBR.readLine();//送信するjsonファイルが1行のみである前提で1行しか読み込ませない
 
             pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));

@@ -35,7 +35,7 @@ public class ConnectToClient extends Thread {
 
         while(true){
             try{
-                PrintWriter jsonPW = new PrintWriter("assets\\data.json");
+                PrintWriter jsonPW = new PrintWriter("assets\\data.json", "UTF-8");
                 getJSON(br, jsonPW);
                 jsonPW.close();
             } catch (IOException e) {
