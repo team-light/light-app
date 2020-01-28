@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.Consumer;
+import android.util.Log;
 
 import com.example.teamet.light_app.R;
 import com.example.teamet.light_app.database.DataBaseMake;
@@ -18,7 +19,7 @@ import java.net.Socket;
 
 public class Router extends Service {
     public static final int PORT = 4567;
-    private final double POLLING_INTERVAL_SEC = 10.0;
+    private final double PERIOD_SEC = 10.0;
 
     private P2pManager pm = null;
     private Server server;
@@ -51,18 +52,26 @@ public class Router extends Service {
             @Override
             public void run() {
                 while (true) {
+                    Log.v("Router", "Start period.");
+
                     pm.requestIsGroupOwner(new Consumer<Boolean>() {
                         @Override
                         public void accept(Boolean isGroupOwner) {
-                            if (!isGroupOwner) {
+                            if (isGroupOwner) {
+                                Log.v("Router", "Group-owner is me.");
+                            }
+                            else {
                                 pm.requestIPAddr(new Consumer<InetAddress>() {
                                     @Override
                                     public void accept(InetAddress inetAddress) {
-                                        if (inetAddress == null) return;
+                                        if (inetAddress == null) {
+                                            Log.v("Router", "Failed fetching Group-owner IP address.");
+                                        }
 
                                         try {
                                             Socket sc = new Socket(inetAddress, PORT);
                                             sc.close();
+                                            Log.v("Router", String.format("Sent empty data to group-owner [%s:%d].", inetAddress.toString(), PORT));
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         }
@@ -73,8 +82,9 @@ public class Router extends Service {
                     });
 
                     try {
-                        Thread.sleep((long) (POLLING_INTERVAL_SEC * 1000));
+                        Thread.sleep((long) (PERIOD_SEC * 1000));
                     } catch (InterruptedException e) {
+                        Log.v("Router", "Interrupted.");
                         e.printStackTrace();
                         return;
                     }

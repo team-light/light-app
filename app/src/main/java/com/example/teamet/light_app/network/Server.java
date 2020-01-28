@@ -39,6 +39,7 @@ public class Server extends AsyncTask<String, Void, Void> {
     }
 
     protected Void doInBackground(String... cx){
+        Log.v("Server", "Starting server...");
         accept();
         return null;
     }
@@ -57,10 +58,13 @@ public class Server extends AsyncTask<String, Void, Void> {
 
     public void saveJson(String data){
         try {
+            Log.v("Server", "Saving JSON...");
             PrintWriter pw = new PrintWriter("assets\\data.json", "UTF-8");
             pw.print(data);
             pw.close();
+            Log.v("Server", "Saved JSON.");
         }catch(IOException e){
+            Log.v("Server", "Failed saving JSON: " + e.toString());
             e.printStackTrace();
         }
     }
@@ -68,22 +72,30 @@ public class Server extends AsyncTask<String, Void, Void> {
     public void accept(){
         try{
             ServerSocket ss = new ServerSocket(Router.PORT);
+
+            Log.v( "Server", String.format("Listening on %s:%d ...", ss.getInetAddress().toString(), ss.getLocalPort()) );
+
             while(true){
                 try{
                     sc = ss.accept();
+                    Log.v( "Server", String.format("Connection from %s:%d", sc.getInetAddress().toString(), sc.getPort()) );
+
                     br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
 
                     String data = recv();
                     if (data.length() == 0) {
+                        Log.v("Server", "Received empty data.");
                         clients.add( sc.getInetAddress() );
                     }
                     else {
+                        Log.v("Server", "Received non-empty data.");
                         saveJson(data);
 
                         pm.requestIsGroupOwner(new Consumer<Boolean>() {
                             @Override
                             public void accept(Boolean isGroupOwner) {
                                 if (isGroupOwner) {
+                                    Log.v("Server", "Group-owner is me.");
                                     for (InetAddress addr : clients) {
                                         Client client = new Client(addr, String.valueOf(Router.PORT), co);
                                         client.execute();

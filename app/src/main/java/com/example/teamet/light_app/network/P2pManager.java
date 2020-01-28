@@ -8,6 +8,7 @@ import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.support.v4.util.Consumer;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.net.InetAddress;
@@ -112,7 +113,7 @@ public class P2pManager {
             @Override
             public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
                 if (wifiP2pGroup == null) {
-                    consumer.accept(false);
+                    Log.v("P2pManager", "wifiP2pGroup == null");
                 }
                 else {
                     consumer.accept(wifiP2pGroup.isGroupOwner());

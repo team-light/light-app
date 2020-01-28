@@ -52,6 +52,7 @@ public class Client extends AsyncTask<String, Void, String> {
     }
 
     public void sendJsonFile(){
+        Log.v("Client", "Sending JSON file...");
         try {
             json = new File("assets\\data.json");
             jsonBR = new BufferedReader(new InputStreamReader(new FileInputStream(json), "UTF-8"));
@@ -62,6 +63,7 @@ public class Client extends AsyncTask<String, Void, String> {
         }catch(IOException e){
             //toast = Toast.makeText(context, "ファイルの入出力中にエラーが発生しました"+e.toString(), duration);
             //toast.show();
+            Log.v("Client", e.toString());
             e.printStackTrace();
         }
     }
@@ -76,10 +78,12 @@ public class Client extends AsyncTask<String, Void, String> {
         }catch (UnknownHostException e){
             //toast = Toast.makeText(context, "ホストが特定できませんでした", duration);
             //toast.show();
+            Log.v("Client", e.toString());
             e.printStackTrace();
         }catch(Exception e){
             //toast = Toast.makeText(context, "入出力中にエラーが発生しました: " + e.toString(), duration);
             //toast.show();
+            Log.v("Client", e.toString());
             e.printStackTrace();
         }
     }
