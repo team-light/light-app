@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.teamet.light_app.DisplayInfoActivity;
+import com.example.teamet.light_app.network.Router;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -14,9 +15,9 @@ public class JsonAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private JsonTask jsonTask;
 
-    public JsonAsyncTask(SQLiteDatabase db) {
+    public JsonAsyncTask(SQLiteDatabase db, Router router) {
         super();
-        this.jsonTask = new JsonTask(db);
+        this.jsonTask = new JsonTask(db, router);
     }
 
     @Override

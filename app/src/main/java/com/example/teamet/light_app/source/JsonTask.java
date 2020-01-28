@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.teamet.light_app.DisplayInfoActivity;
+import com.example.teamet.light_app.network.Router;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,10 +26,12 @@ public class JsonTask extends TimerTask {
     private final String url = "http://ko-kon.sakura.ne.jp/light-app/json/data.json";
 
     private SQLiteDatabase db;
+    private Router router;
 
-    public JsonTask(SQLiteDatabase db) {
+    public JsonTask(SQLiteDatabase db, Router router) {
         super();
         this.db = db;
+        this.router = router;
     }
 
     @Override
