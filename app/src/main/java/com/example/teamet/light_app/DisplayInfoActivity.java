@@ -13,6 +13,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -240,7 +241,8 @@ public class DisplayInfoActivity extends AppCompatActivity {
                 null
         );
         target.moveToFirst();
-        for(int i=0;i<30;i++){
+        for(int j=0;j<30;j++){
+            Log.v("hoge",j+"");
             String datetime = target.getString(1);
             String hypocenter = target.getString(2);
             double north_lat = target.getDouble(3);
@@ -251,14 +253,24 @@ public class DisplayInfoActivity extends AppCompatActivity {
             String city_list = target.getString(8);
             String message =target.getString(9);
 
-            sbuilder.append(datetime).append(" ").append(hypocenter).append(" ").append(north_lat).append(" ").append(east_long)
-                    .append(" ").append(depth).append(" ").append(magnitude).append(" ")
-                    .append(max_int).append(" ").append(city_list).append(" ").append(message).append("\n");
+            setFont(2,sbuilder,"最大震度 <big><big>"+max_int+"</big></big>　マグニチュード <big><big>"+magnitude+"</big></big>");
+            if (depth==0) {
+                setFont(4, sbuilder, "発生時刻 : " + datetime + "<br>震源地　 : " + hypocenter + "<br>深さ　　 : ごく浅い");
+            }else{
+                setFont(4, sbuilder, "発生時刻 : " + datetime + "<br>震源地　 : " + hypocenter + "<br>深さ　　 : 約"+depth/1000+"km");
+            }
+            setFont(6,sbuilder,city_list.replaceAll("\n", "<br>"));
+            setFont(4,sbuilder,message);
+            sbuilder.append("<br><br>");
 
             target.moveToNext();
         }
         target.close();
-        textView_earthquake.setText(sbuilder.toString());
+        textView_earthquake.setText(Html.fromHtml(sbuilder.toString()));
+    }
+
+    private void setFont(int h_size,StringBuilder sbuilder,String string){
+        sbuilder.append("<h" + h_size + ">"+ string + "</h" + h_size + ">");
     }
 
     private void readData(String pref, String city) {
