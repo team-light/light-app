@@ -227,15 +227,6 @@ public class DisplayInfoActivity extends AppCompatActivity {
         buttonState = ButtonState.CLOSE;
     }
 
-    public void reload() {
-        String pref = (String)prefSpinner.getSelectedItem();
-        String city = (String)areaSpinner.getSelectedItem();
-        if(!pref.equals("都道府県") && !city.equals("市区町村")) {
-            readData(pref, city);
-        }
-        readEqData();
-    }
-
     private void readEqData(){
         SQLiteDatabase db = dbm.getReadableDatabase();
         StringBuilder sbuilder = new StringBuilder();
