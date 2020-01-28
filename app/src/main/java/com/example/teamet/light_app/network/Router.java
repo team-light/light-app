@@ -9,6 +9,8 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.Consumer;
 
 import com.example.teamet.light_app.R;
+import com.example.teamet.light_app.database.DataBaseMake;
+import com.example.teamet.light_app.source.JsonAsyncTask;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -20,6 +22,8 @@ public class Router extends Service {
 
     private P2pManager pm = null;
     private Server server;
+    private DataBaseMake dbm;
+
 
     @Nullable
     @Override
@@ -75,6 +79,10 @@ public class Router extends Service {
                 }
             }
         }).start();
+
+        dbm = new DataBaseMake(getApplicationContext());
+        JsonAsyncTask asyncTask = new JsonAsyncTask(dbm.getReadableDatabase());
+        asyncTask.execute();
 
         return START_STICKY;
     }

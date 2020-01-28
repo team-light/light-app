@@ -24,12 +24,10 @@ public class JsonTask extends TimerTask {
 
     private final String url = "http://ko-kon.sakura.ne.jp/light-app/json/data.json";
 
-    private DisplayInfoActivity ma;
     private SQLiteDatabase db;
 
-    public JsonTask(DisplayInfoActivity ma, SQLiteDatabase db) {
+    public JsonTask(SQLiteDatabase db) {
         super();
-        this.ma = ma;
         this.db = db;
     }
 
@@ -96,8 +94,6 @@ public class JsonTask extends TimerTask {
             }
 
             Log.d(TAG, "end");
-
-            ma.reload();
         } catch (Exception e) {
             e.printStackTrace();
         }

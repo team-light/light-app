@@ -116,9 +116,6 @@ public class DisplayInfoActivity extends AppCompatActivity {
         }
         setSupportActionBar(toolbar);
 
-        JsonAsyncTask asyncTask = new JsonAsyncTask(this, dbm.getReadableDatabase());
-        asyncTask.execute();
-
         setPrefSpinner();
     }
 

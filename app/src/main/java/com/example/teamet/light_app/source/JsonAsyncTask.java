@@ -14,9 +14,9 @@ public class JsonAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private JsonTask jsonTask;
 
-    public JsonAsyncTask(DisplayInfoActivity ma, SQLiteDatabase db) {
+    public JsonAsyncTask(SQLiteDatabase db) {
         super();
-        this.jsonTask = new JsonTask(ma, db);
+        this.jsonTask = new JsonTask(db);
     }
 
     @Override
