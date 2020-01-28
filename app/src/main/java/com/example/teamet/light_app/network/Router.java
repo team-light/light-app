@@ -66,6 +66,7 @@ public class Router extends Service {
                                     public void accept(InetAddress inetAddress) {
                                         if (inetAddress == null) {
                                             Log.v("Router", "Failed fetching Group-owner IP address.");
+                                            return;
                                         }
 
                                         try {
@@ -97,5 +98,22 @@ public class Router extends Service {
         asyncTask.execute();
 
         return START_STICKY;
+    }
+
+    public void sendJsonToGroupOwner() {
+        pm.requestIPAddr(new Consumer<InetAddress>() {
+            @Override
+            public void accept(InetAddress inetAddress) {
+                if (inetAddress == null) {
+                    Log.v("Router", "Failed fetching Group-owner IP address in sendJsonToGroupOwner().");
+                    return;
+                }
+
+                Log.v("Router", String.format("Sending json to group-owner [%s:%d] ...", inetAddress.toString(), PORT));
+
+                Client client = new Client(inetAddress, String.valueOf(PORT), Router.this);
+                client.execute();
+            }
+        });
     }
 }
