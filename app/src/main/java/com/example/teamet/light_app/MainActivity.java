@@ -105,9 +105,14 @@ public class MainActivity extends AppCompatActivity {
             String city_list = target.getString(8);
             String message =target.getString(9);
 
-            sbuilder.append(datetime).append(" ").append(hypocenter).append(" ").append(north_lat).append(" ").append(east_long)
-                    .append(" ").append(depth).append(" ").append(magnitude).append(" ")
-                    .append(max_int).append(" ").append(city_list).append(" ").append(message).append("\n");
+            sbuilder.append("最大震度　").append(max_int).append("　マグニチュード　").append("M"+magnitude).append("\n発生時刻 : ").append(datetime).append("\n震源地　 : ")
+                    .append(hypocenter).append("\n深さ　　 : ");
+            if(depth==0) {
+                sbuilder.append("ごく浅い\n");
+            }else{
+                sbuilder.append("約"+depth/1000+"km\n");
+            }
+            sbuilder.append(city_list+"\n");
 
             target.moveToNext();
         }
