@@ -1,11 +1,9 @@
 <resources>
     <string name="app_name">light-app</string>
-    <string name="test_shapefile">/20190125_AreaTsunami_GIS/tunami.shp</string>
-    <string name="read_permission_denied">sippai</string>
-    <string name="fab_text_setNet">ネットワークの設定</string>
-    <string name="fab_text_info">情報を見る</string>
-    <string name="fab_text_hazard">警報・注意報</string>
-    <string name="fab_text_earthquake">地震情報</string>
-    <string name="fab_text_map">災害マップ（未実装）</string>
-    <string name="fab_text_close">アプリを閉じる</string>
+    <string name="fab_text_setNet">" ネットワークの設定 "</string>
+    <string name="fab_text_info">" 情報を見る "</string>
+    <string name="fab_text_alarm">" 警報・注意報 "</string>
+    <string name="fab_text_earthquake">" 地震情報 "</string>
+    <string name="fab_text_map">" 災害マップ（未実装）"</string>
+    <string name="fab_text_close">" アプリを閉じる "</string>
 </resources>

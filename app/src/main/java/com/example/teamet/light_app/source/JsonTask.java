@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -59,21 +60,20 @@ public class JsonTask extends TimerTask {
                 builder.append(str);
             }
 
-
             JSONObject json = new JSONObject(builder.toString());
 
             // 気象警報・注意報
             JSONObject warn = json.getJSONObject("warn");
             JSONArray key = warn.names();
             for(int i = 0; i < key.length(); i++) {
-                JSONObject target = warn.getJSONObject(key.get(i).toString());
+                int code = Integer.parseInt(key.get(i).toString());
+                JSONObject target = warn.getJSONObject(code + "");
                 String datetime = target.getString("datetime");
                 ContentValues values = new ContentValues();
                 if(!datetime.equals("")) values.put("time", target.getString("datetime"));
                 values.put("alert", target.getString("warn"));
                 values.put("message", target.getString("message"));
-                int city = target.getInt("city");
-                this.db.update("warn_info", values, "city=" + city, null);
+                this.db.update("warn_info", values, "city=" + code, null);
             }
 
             // 地震
@@ -98,8 +98,6 @@ public class JsonTask extends TimerTask {
             Log.d(TAG, "end");
 
             ma.reload();
-
-            br.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

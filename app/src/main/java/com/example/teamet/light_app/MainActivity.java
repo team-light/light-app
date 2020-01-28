@@ -16,13 +16,13 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    LinearLayout[] fabs;
-    LinearLayout fab_alarm;
-    LinearLayout fab_earthquake;
-    LinearLayout fab_map;
-    LinearLayout fab_net;
-    LinearLayout fab_close;
-    ObjectAnimator animator_fabs;
+    private LinearLayout[] fabs;
+    private LinearLayout fab_alarm;
+    private LinearLayout fab_earthquake;
+    private LinearLayout fab_map;
+    private LinearLayout fab_net;
+    private LinearLayout fab_close;
+    private ObjectAnimator animator_fabs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,37 +32,37 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
-        fab_alarm = findViewById(R.id.alarm);
-        fab_earthquake = findViewById(R.id.earthquake);
-        fab_map = findViewById(R.id.map);
+        fab_alarm = findViewById(R.id.main_menu_alarm);
+        fab_earthquake = findViewById(R.id.main_menu_earthquake);
+        fab_map = findViewById(R.id.main_menu_map);
 
         fabs = new LinearLayout[3];
         fabs[0] = fab_alarm;
         fabs[1] = fab_earthquake;
         fabs[2] = fab_map;
 
-        fab_net = findViewById(R.id.net);
-        fab_close = findViewById(R.id.close);
+        fab_net = findViewById(R.id.main_menu_net);
+        fab_close = findViewById(R.id.main_menu_close);
     }
 
 //    情報の表示
     public void pushAlarmFab(View view){
         Intent intent = new Intent(this, DisplayInfoActivity.class);
-        intent.putExtra("type", "ALERT");
+        intent.putExtra("info_type", "alarm");
 
         dispInfo(intent);
     }
 
     public void pushEarthquakeFab(View view){
         Intent intent = new Intent(this, DisplayInfoActivity.class);
-        intent.putExtra("type", "EARTHQUAKE");
+        intent.putExtra("info_type", "earthquake");
 
         dispInfo(intent);
     }
 
     public void pushMapFab(View view){
         Intent intent = new Intent(this, DisplayInfoActivity.class);
-        intent.putExtra("type", "MAP");
+        intent.putExtra("into_type", "map");
         Toast.makeText(MainActivity.this, "未実装です", Toast.LENGTH_LONG).show();
 
         //dispInfo(intent);
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         animator_fabs.addListener(new AnimatorListenerAdapter(){
             @Override
             public void onAnimationEnd(Animator animator){
-                fab_alarm.setVisibility(View.GONE);
+                fab_alarm.setVisibility(View.INVISIBLE);
                 super.onAnimationEnd(animator);
             }
         });
@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         animator_fabs.addListener(new AnimatorListenerAdapter(){
             @Override
             public void onAnimationEnd(Animator animator){
-                fab_earthquake.setVisibility(View.GONE);
+                fab_earthquake.setVisibility(View.INVISIBLE);
                 super.onAnimationEnd(animator);
             }
         });
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         animator_fabs.addListener(new AnimatorListenerAdapter(){
             @Override
             public void onAnimationEnd(Animator animator){
-                fab_map.setVisibility(View.GONE);
+                fab_map.setVisibility(View.INVISIBLE);
                 super.onAnimationEnd(animator);
             }
         });
