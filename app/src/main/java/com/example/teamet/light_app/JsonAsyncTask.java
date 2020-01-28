@@ -20,9 +20,9 @@ public class JsonAsyncTask extends AsyncTask<Void, Void, Void> {
 //        this.jsonTask = new JsonTask(db);
 //    }
 
-    public JsonAsyncTask(MainActivity ma, SQLiteDatabase db) {
+    public JsonAsyncTask(String file_path, SQLiteDatabase db) {
         super();
-        this.jsonTask = new JsonTask(ma, db);
+        this.jsonTask = new JsonTask(file_path, db);
     }
 
     @Override

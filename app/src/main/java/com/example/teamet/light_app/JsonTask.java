@@ -3,17 +3,20 @@ package com.example.teamet.light_app;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import android.widget.Spinner;
-import android.widget.TextView;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.TimerTask;
+import javax.net.ssl.HttpsURLConnection;
 
 public class JsonTask extends TimerTask {
 
@@ -22,33 +25,19 @@ public class JsonTask extends TimerTask {
     private final int CONNECT_TIMEOUT = 30 * 1000;
 
     private final String url = "http://ko-kon.sakura.ne.jp/light-app/json/data.json";
+    private String file_path;
 
-    private MainActivity ma;
     private SQLiteDatabase db;
-    private TextView textView;
-    private Spinner prefSpinner;
-    private Spinner areaSpinner;
 
 
-//    public JsonTask(SQLiteDatabase db) {
-//        super();
-//        this.db = db;
-//    }
-
-    public JsonTask(MainActivity ma, SQLiteDatabase db) {
+    public JsonTask(String file_path, SQLiteDatabase db) {
         super();
-        this.ma = ma;
+        this.file_path = file_path;
         this.db = db;
     }
 
     @Override
     public void run() {
-        this.getInfo();
-    }
-
-    private void getInfo(){
-        Log.d(TAG, "getInfo");
-
         try {
             HttpURLConnection con = (HttpURLConnection)new URL(this.url).openConnection();
             con.setReadTimeout(this.READ_TIMEOUT);
@@ -58,18 +47,42 @@ public class JsonTask extends TimerTask {
             con.setDoOutput(false);
             con.connect();
 
-            Log.d(TAG, "connected");
+            if(con.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+                Log.d(TAG, "connected");
+                BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                StringBuilder sbuilder = new StringBuilder();
+                String str;
+                while((str = br.readLine()) != null) {
+                    sbuilder.append(str);
+                }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.file_path)))));
+                pr.print(sbuilder);
 
-            StringBuilder builder = new StringBuilder();
-            String str;
-            while((str = br.readLine()) != null) {
-                builder.append(str);
+                this.getInfo(sbuilder.toString());
+
+                br.close();
+            } else {
+                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.file_path))));
+                StringBuilder sbuilder = new StringBuilder();
+                String str;
+                while ((str = br.readLine()) != null) {
+                    sbuilder.append(str);
+                }
+
+                this.getInfo(sbuilder.toString());
+
+                br.close();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-
-            JSONObject json = new JSONObject(builder.toString());
+    private void getInfo(String jsonString){
+        Log.d(TAG, "getInfo");
+        try {
+            JSONObject json = new JSONObject(jsonString);
 
             // 気象警報・注意報
             JSONObject warn = json.getJSONObject("warn");
@@ -98,7 +111,6 @@ public class JsonTask extends TimerTask {
                     values.put("depth", target.getInt("depth"));
                     values.put("magnitude", target.getDouble("magnitude"));
                     values.put("max_int", target.getString("max_int"));
-//                    values.put("city_list", target.getJSONObject("city_list").toString());
                     values.put("city_list", target.getString("city_list"));
                     values.put("message", target.getString("message"));
                     this.db.update("eq_info", values, "code=" + i, null);
@@ -106,10 +118,6 @@ public class JsonTask extends TimerTask {
             }
 
             Log.d(TAG, "end");
-
-            ma.reload();
-
-            br.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
