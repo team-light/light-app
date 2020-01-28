@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -105,19 +106,24 @@ public class MainActivity extends AppCompatActivity {
             String city_list = target.getString(8);
             String message =target.getString(9);
 
-            sbuilder.append("最大震度　").append(max_int).append("　マグニチュード　").append("M"+magnitude).append("\n発生時刻 : ").append(datetime).append("\n震源地　 : ")
-                    .append(hypocenter).append("\n深さ　　 : ");
-            if(depth==0) {
-                sbuilder.append("ごく浅い\n");
+            setFont(2,sbuilder,"最大震度 <big><big>"+max_int+"</big></big>　マグニチュード <big><big>"+magnitude+"</big></big>");
+            if (depth==0) {
+                setFont(4, sbuilder, "発生時刻 : " + datetime + "<br>震源地　 : " + hypocenter + "<br>深さ　　 : ごく浅い");
             }else{
-                sbuilder.append("約"+depth/1000+"km\n");
+                setFont(4, sbuilder, "発生時刻 : " + datetime + "<br>震源地　 : " + hypocenter + "<br>深さ　　 : 約"+depth/1000+"km");
             }
-            sbuilder.append(city_list+"\n");
+            setFont(6,sbuilder,city_list.replaceAll("\n", "<br>"));
+            setFont(4,sbuilder,message);
+            sbuilder.append("<br><br>");
 
             target.moveToNext();
         }
         target.close();
-        eqTextView.setText(sbuilder.toString());
+        eqTextView.setText(Html.fromHtml(sbuilder.toString()));
+    }
+
+    private void setFont(int h_size,StringBuilder sbuilder,String string){
+        sbuilder.append("<h" + h_size + ">"+ string + "</h" + h_size + ">");
     }
 
     private void readData(String pref, String city) {
