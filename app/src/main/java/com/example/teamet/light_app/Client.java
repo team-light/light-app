@@ -1,7 +1,6 @@
 package com.example.teamet.light_app;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -23,6 +22,9 @@ public class Client extends AsyncTask<String, Void, String> {
     private Context context;
     private int duration = Toast.LENGTH_SHORT;
     private Toast toast;
+    private File json;
+    private FileReader fr;
+    private BufferedReader jsonBR;
 
     public Client(EditText editText, EditText ipText, EditText portText, Context co){
         et = editText;
@@ -48,7 +50,12 @@ public class Client extends AsyncTask<String, Void, String> {
         try {
             sc = new Socket(HOST, PORT);
             br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
-            String str = et.getText().toString();
+
+            json = new File("assets\\data.json");
+            fr = new FileReader(json);
+            jsonBR = new BufferedReader(fr);
+            String str = jsonBR.readLine();//送信するjsonファイルが1行のみである前提で1行しか読み込ませない
+
             pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
             pw.println(str);
             pw.flush();
@@ -59,31 +66,6 @@ public class Client extends AsyncTask<String, Void, String> {
         }catch(Exception e){
             toast = Toast.makeText(context, "入出力中にエラーが発生しました: " + e.toString(), duration);
             toast.show();
-            e.printStackTrace();
-        }
-    }
-
-    public void send(){
-        try{
-            String str = et.getText().toString();
-            pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
-            pw.println(str);
-            pw.flush();
-        }catch(Exception e){
-            toast = Toast.makeText(context, "送信できませんでした", duration);
-            toast.show();
-            e.printStackTrace();
-        }
-    }
-
-    public void closeSystem(){
-        if(sc != null)
-        try{
-            br.close();
-            pw.close();
-            sc.close();
-            sc = null;
-        }catch(IOException e){
             e.printStackTrace();
         }
     }

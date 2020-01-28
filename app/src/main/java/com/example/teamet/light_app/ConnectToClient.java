@@ -4,7 +4,6 @@ import android.widget.TextView;
 
 import java.io.*;
 import java.net.*;
-import java.nio.Buffer;
 
 public class ConnectToClient extends Thread {
     private Socket sc;
@@ -17,18 +16,12 @@ public class ConnectToClient extends Thread {
         result = tx;
     }
 
-    public void getJSON(BufferedReader br, FileWriter fileWriter){
-        try{
-            String str = br.readLine();
-            fileWriter.write(str);
-        }catch(Exception e){
-            try{
-                br.close();
-                pw.close();
-                sc.close();
-            }catch(Exception ex){
-                ex.printStackTrace();
-            }
+    public void getJSON(BufferedReader br, PrintWriter pw){
+        try {
+            String data = br.readLine();
+            pw.println(data);
+        }catch(IOException e){
+            e.printStackTrace();
         }
     }
 
@@ -40,13 +33,12 @@ public class ConnectToClient extends Thread {
             e.printStackTrace();
         }
 
-        File json = new File("app\\assets\\data.json");
-
         while(true){
             try{
-                FileWriter fileWriter = new FileWriter(json);
-                getJSON(br, fileWriter);
-            } catch (Exception e) {
+                PrintWriter jsonPW = new PrintWriter("assets\\data.json");
+                getJSON(br, jsonPW);
+                jsonPW.close();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
