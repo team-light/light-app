@@ -15,7 +15,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -38,12 +37,15 @@ public class JsonTask extends TimerTask {
 
     private SQLiteDatabase db;
 
+    private Router router;
+
 
     public JsonTask(String file_path, SQLiteDatabase db, Router router) {
         super();
         this.file_path = file_path;
         this.timestamp = new JSONArray();
         this.db = db;
+        this.router = router;
     }
 
     @Override
