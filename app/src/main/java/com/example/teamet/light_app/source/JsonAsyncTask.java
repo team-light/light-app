@@ -15,9 +15,9 @@ public class JsonAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private JsonTask jsonTask;
 
-    public JsonAsyncTask(SQLiteDatabase db, Router router) {
+    public JsonAsyncTask(String file_path, SQLiteDatabase db) {
         super();
-        this.jsonTask = new JsonTask(db, router);
+        this.jsonTask = new JsonTask(file_path, db);
     }
 
     @Override
@@ -27,7 +27,6 @@ public class JsonAsyncTask extends AsyncTask<Void, Void, Void> {
             Calendar calendar = Calendar.getInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("ss");
             int now = Integer.parseInt(sdf.format(calendar.getTime()));
-            Log.v("JAT", ""+now);
             Thread.sleep((60 - now) * 1000);
         } catch(Exception e) {
             e.printStackTrace();

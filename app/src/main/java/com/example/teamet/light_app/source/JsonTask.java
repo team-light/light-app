@@ -11,11 +11,19 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.TimerTask;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class JsonTask extends TimerTask {
 
@@ -24,24 +32,22 @@ public class JsonTask extends TimerTask {
     private final int CONNECT_TIMEOUT = 30 * 1000;
 
     private final String url = "http://ko-kon.sakura.ne.jp/light-app/json/data.json";
+    private String file_path;
+
+    private JSONArray timestamp;
 
     private SQLiteDatabase db;
-    private Router router;
 
-    public JsonTask(SQLiteDatabase db, Router router) {
+
+    public JsonTask(String file_path, SQLiteDatabase db) {
         super();
+        this.file_path = file_path;
+        this.timestamp = new JSONArray();
         this.db = db;
-        this.router = router;
     }
 
     @Override
     public void run() {
-        this.getInfo();
-    }
-
-    private void getInfo(){
-        Log.d(TAG, "getInfo");
-
         try {
             HttpURLConnection con = (HttpURLConnection)new URL(this.url).openConnection();
             con.setReadTimeout(this.READ_TIMEOUT);
@@ -51,18 +57,47 @@ public class JsonTask extends TimerTask {
             con.setDoOutput(false);
             con.connect();
 
-            Log.d(TAG, "connected");
+            if(con.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+                Log.d(TAG, "connected");
+                BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                StringBuilder sbuilder = new StringBuilder();
+                String str;
+                while((str = br.readLine()) != null) {
+                    sbuilder.append(str);
+                }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.file_path)))));
+                pr.print(sbuilder);
 
-            StringBuilder builder = new StringBuilder();
-            String str;
-            while((str = br.readLine()) != null) {
-                builder.append(str);
+                JSONObject json = new JSONObject(sbuilder.toString());
+                if(json.getJSONArray("timestamp").equals(timestamp)) {
+                    this.getInfo(json);
+                }
+
+                br.close();
+            } else {
+                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.file_path))));
+                StringBuilder sbuilder = new StringBuilder();
+                String str;
+                while ((str = br.readLine()) != null) {
+                    sbuilder.append(str);
+                }
+
+                JSONObject json = new JSONObject(sbuilder.toString());
+                if(json.getJSONArray("timestamp").equals(this.timestamp)) {
+                    this.getInfo(json);
+                }
+
+                br.close();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-            JSONObject json = new JSONObject(builder.toString());
-
+    private void getInfo(JSONObject json){
+        Log.d(TAG, "getInfo");
+        try {
             // 気象警報・注意報
             JSONObject warn = json.getJSONObject("warn");
             JSONArray key = warn.names();
