@@ -39,7 +39,7 @@ public class JsonTask extends TimerTask {
     private SQLiteDatabase db;
 
 
-    public JsonTask(String file_path, SQLiteDatabase db) {
+    public JsonTask(String file_path, SQLiteDatabase db, Router router) {
         super();
         this.file_path = file_path;
         this.timestamp = new JSONArray();
