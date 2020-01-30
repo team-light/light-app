@@ -1,10 +1,9 @@
 package com.example.teamet.light_app.source;
 
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.example.teamet.light_app.DisplayInfoActivity;
 import com.example.teamet.light_app.network.Router;
 
 import java.text.SimpleDateFormat;
@@ -15,9 +14,9 @@ public class JsonAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private JsonTask jsonTask;
 
-    public JsonAsyncTask(String file_path, SQLiteDatabase db, Router router) {
+    public JsonAsyncTask(Context context, SQLiteDatabase db, Router router) {
         super();
-        this.jsonTask = new JsonTask(file_path, db, router);
+        this.jsonTask = new JsonTask(context, db, router);
     }
 
     @Override

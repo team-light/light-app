@@ -3,8 +3,8 @@ package com.example.teamet.light_app.source;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.content.Context;
 
-import com.example.teamet.light_app.DisplayInfoActivity;
 import com.example.teamet.light_app.network.Router;
 
 import org.json.JSONArray;
@@ -12,9 +12,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -24,14 +21,18 @@ import java.util.TimerTask;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class JsonTask extends TimerTask {
 
     private final String TAG = "JsonTask";
     private final int READ_TIMEOUT = 30 * 1000;
     private final int CONNECT_TIMEOUT = 30 * 1000;
 
-    private final String url = "http://ko-kon.sakura.ne.jp/light-app/json/data.json";
-    private String file_path;
+    private final String URL = "http://ko-kon.sakura.ne.jp/light-app/json/data.json";
+
+    private final Context context;
+    private final String JSON_FNAME = "data.json";
 
     private JSONArray timestamp;
 
@@ -40,9 +41,9 @@ public class JsonTask extends TimerTask {
     private Router router;
 
 
-    public JsonTask(String file_path, SQLiteDatabase db, Router router) {
+    public JsonTask(Context context, SQLiteDatabase db, Router router) {
         super();
-        this.file_path = file_path;
+        this.context = context;
         this.timestamp = new JSONArray();
         this.db = db;
         this.router = router;
@@ -51,7 +52,7 @@ public class JsonTask extends TimerTask {
     @Override
     public void run() {
         try {
-            HttpURLConnection con = (HttpURLConnection)new URL(this.url).openConnection();
+            HttpURLConnection con = (HttpURLConnection)new URL(this.URL).openConnection();
             con.setReadTimeout(this.READ_TIMEOUT);
             con.setConnectTimeout(this.CONNECT_TIMEOUT);
             con.setRequestMethod("POST");
@@ -67,30 +68,29 @@ public class JsonTask extends TimerTask {
                 while((str = br.readLine()) != null) {
                     sbuilder.append(str);
                 }
+                br.close();
 
-                PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.file_path)))));
+                PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(this.context.openFileOutput(this.JSON_FNAME, MODE_PRIVATE))));
                 pr.print(sbuilder);
+                pr.close();
 
                 JSONObject json = new JSONObject(sbuilder.toString());
                 if(json.getJSONArray("timestamp").equals(timestamp)) {
                     this.getInfo(json);
                 }
-
-                br.close();
             } else {
-                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.file_path))));
+                BufferedReader br = new BufferedReader(new InputStreamReader(this.context.openFileInput(this.JSON_FNAME)));
                 StringBuilder sbuilder = new StringBuilder();
                 String str;
                 while ((str = br.readLine()) != null) {
                     sbuilder.append(str);
                 }
+                br.close();
 
                 JSONObject json = new JSONObject(sbuilder.toString());
                 if(json.getJSONArray("timestamp").equals(this.timestamp)) {
                     this.getInfo(json);
                 }
-
-                br.close();
             }
         } catch (Exception e) {
             e.printStackTrace();
