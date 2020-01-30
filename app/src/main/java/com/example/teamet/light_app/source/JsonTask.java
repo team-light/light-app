@@ -70,16 +70,18 @@ public class JsonTask extends TimerTask {
                 }
                 br.close();
 
-                PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(this.context.openFileOutput(this.JSON_FNAME, MODE_PRIVATE))));
+                PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(this.context.openFileOutput(this.JSON_FNAME, MODE_PRIVATE), "UTF-8")));
                 pr.print(sbuilder);
                 pr.close();
+
+                this.router.sendJsonToGroupOwner();
 
                 JSONObject json = new JSONObject(sbuilder.toString());
                 if(json.getJSONArray("timestamp").equals(timestamp)) {
                     this.getInfo(json);
                 }
             } else {
-                BufferedReader br = new BufferedReader(new InputStreamReader(this.context.openFileInput(this.JSON_FNAME)));
+                BufferedReader br = new BufferedReader(new InputStreamReader(this.context.openFileInput(this.JSON_FNAME), "UTF-8"));
                 StringBuilder sbuilder = new StringBuilder();
                 String str;
                 while ((str = br.readLine()) != null) {

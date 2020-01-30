@@ -94,7 +94,7 @@ public class Router extends Service {
         }).start();
 
         dbm = new DataBaseMake(getApplicationContext());
-        JsonAsyncTask asyncTask = new JsonAsyncTask(dbm.getReadableDatabase(), this);
+        JsonAsyncTask asyncTask = new JsonAsyncTask(getApplicationContext(), dbm.getReadableDatabase(), this);
         asyncTask.execute();
 
         return START_STICKY;
