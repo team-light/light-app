@@ -41,9 +41,9 @@ public class JsonTask extends TimerTask {
     private Router router;
 
 
-    public JsonTask(Context context, SQLiteDatabase db, Router router) {
+    public JsonTask(SQLiteDatabase db, Router router) {
         super();
-        this.context = context;
+        this.context = router.getApplicationContext();
         this.timestamp = new JSONArray();
         this.db = db;
         this.router = router;

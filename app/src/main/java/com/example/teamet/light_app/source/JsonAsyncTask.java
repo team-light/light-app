@@ -14,9 +14,9 @@ public class JsonAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private JsonTask jsonTask;
 
-    public JsonAsyncTask(Context context, SQLiteDatabase db, Router router) {
+    public JsonAsyncTask(SQLiteDatabase db, Router router) {
         super();
-        this.jsonTask = new JsonTask(context, db, router);
+        this.jsonTask = new JsonTask(db, router);
     }
 
     @Override
