@@ -1,256 +1,173 @@
 package com.example.teamet.light_app;
 
-import android.annotation.SuppressLint;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Html;
+import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView textView;
-    private TextView eqTextView;
-    private Spinner prefSpinner;
-    private Spinner areaSpinner;
-    private DataBaseMake dbm;
-    private Button eqButton;
-    private ConstraintLayout layout_alarm;
-    private ConstraintLayout layout_earthquake;
-    private enum LayoutState{
-        EQ,
-        ALARM
-    }
-    private LayoutState layoutState = LayoutState.ALARM;
+
+    private LinearLayout[] fabs;
+    private LinearLayout fab_alarm;
+    private LinearLayout fab_earthquake;
+    private LinearLayout fab_map;
+    private LinearLayout fab_net;
+    private LinearLayout fab_close;
+    private ObjectAnimator animator_fabs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // DB作成
-        dbm = new DataBaseMake(getApplicationContext());
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
 
+        fab_alarm = findViewById(R.id.main_menu_alarm);
+        fab_earthquake = findViewById(R.id.main_menu_earthquake);
+        fab_map = findViewById(R.id.main_menu_map);
 
-        // 変数textViewに表示するテキストビューのidを格納
-        textView = findViewById(R.id.text_view);
-        eqTextView = findViewById(R.id.textView);
-        prefSpinner = findViewById(R.id.pref_spinner);
-        areaSpinner = findViewById(R.id.area_spinner);
-        eqButton = findViewById(R.id.eq_Button);
-        layout_alarm = (ConstraintLayout) findViewById(R.id.layout_alarm);
-        layout_earthquake = (ConstraintLayout) findViewById(R.id.layout_earthquake);
+        fabs = new LinearLayout[3];
+        fabs[0] = fab_alarm;
+        fabs[1] = fab_earthquake;
+        fabs[2] = fab_map;
 
+        fab_net = findViewById(R.id.main_menu_net);
+        fab_close = findViewById(R.id.main_menu_close);
+    }
 
+//    情報の表示
+    public void pushAlarmFab(View view){
+        Intent intent = new Intent(this, DisplayInfoActivity.class);
+        intent.putExtra("info_type", "alarm");
 
-        JsonAsyncTask asyncTask = new JsonAsyncTask(this, dbm.getReadableDatabase());
-        asyncTask.execute();
-//        json_task = asynktask.getjsonTask();
-        setPrefSpinner();
-        eqButton.setOnClickListener(new View.OnClickListener(){
+        dispInfo(intent);
+    }
+
+    public void pushEarthquakeFab(View view){
+        Intent intent = new Intent(this, DisplayInfoActivity.class);
+        intent.putExtra("info_type", "earthquake");
+
+        dispInfo(intent);
+    }
+
+    public void pushMapFab(View view){
+        Intent intent = new Intent(this, DisplayInfoActivity.class);
+        intent.putExtra("into_type", "map");
+        Toast.makeText(MainActivity.this, "未実装です", Toast.LENGTH_LONG).show();
+
+        //dispInfo(intent);
+    }
+
+    private void dispInfo(Intent intent){
+        startActivity(intent);
+    }
+
+    //    ネットワーク設定
+    public void netSet(View view){
+        Log.v("Function", "netSet");
+
+        Intent intent = new Intent(this, NetworkSetActivity.class);
+        startActivity(intent);
+    }
+
+//    アプリの終了
+    public void closeApp(View view){
+        this.finish();
+    }
+
+//    fabの制御
+    private enum ButtonState{
+        OPEN,
+        CLOSE
+    }
+
+    private ButtonState buttonState = ButtonState.CLOSE;
+
+    public void infoFab(View view){
+        Log.v("button", "infoFab");
+        int iconWhile = (int) convertDp2Px(56, this.getApplicationContext());
+
+        if (buttonState == ButtonState.CLOSE){
+            fabOpen(iconWhile);
+        }else{
+            fabClose();
+        }
+    }
+
+    public static float convertDp2Px(float dp, Context context){
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return dp * metrics.density;
+    }
+
+    public void fabOpen(int iconWhile){
+        for(int i=0; i<fabs.length; i++){
+            fabs[i].setVisibility(View.VISIBLE);
+            animator_fabs = ObjectAnimator.ofFloat(fabs[i], "translationY", iconWhile*i + convertDp2Px(64, this.getApplicationContext()));
+            animator_fabs.setDuration(200);
+            animator_fabs.start();
+        }
+
+        animator_fabs = ObjectAnimator.ofFloat(fab_net, "translationY", convertDp2Px(168, this.getApplicationContext()));
+        animator_fabs.setDuration(200);
+        animator_fabs.start();
+
+        animator_fabs = ObjectAnimator.ofFloat(fab_close, "translationY", convertDp2Px(168, this.getApplicationContext()));
+        animator_fabs.setDuration(200);
+        animator_fabs.start();
+
+        buttonState = ButtonState.OPEN;
+    }
+
+    public void fabClose(){
+        animator_fabs = ObjectAnimator.ofFloat(fab_alarm, "translationY", 0);
+        animator_fabs.setDuration(200);
+        animator_fabs.addListener(new AnimatorListenerAdapter(){
             @Override
-            public void onClick(View view){
-                if(layoutState == LayoutState.ALARM){
-                    layout_alarm.setVisibility(View.GONE);
-                    layout_earthquake.setVisibility(View.VISIBLE);
-                    layoutState = LayoutState.EQ;
-                    readEqData();
-                }else if (layoutState == LayoutState.EQ){
-                    layout_earthquake.setVisibility(View.GONE);
-                    layout_alarm.setVisibility(View.VISIBLE);
-                    layoutState = LayoutState.ALARM;
-                }
+            public void onAnimationEnd(Animator animator){
+                fab_alarm.setVisibility(View.INVISIBLE);
+                super.onAnimationEnd(animator);
             }
         });
-    }
+        animator_fabs.start();
 
-
-    public void reload() {
-        String pref = (String)prefSpinner.getSelectedItem();
-        String city = (String)areaSpinner.getSelectedItem();
-//        Log.d("reload", pref + city);
-        if(!pref.equals("都道府県") && !city.equals("市区町村")) {
-            readData(pref, city);
-        }
-    }
-
-    private void readEqData(){
-        SQLiteDatabase db = dbm.getReadableDatabase();
-        StringBuilder sbuilder = new StringBuilder();
-        Cursor target = db.query(
-                "eq_info",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        target.moveToFirst();
-        for(int j=0;j<30;j++){
-            Log.v("hoge",j+"");
-            String datetime = target.getString(1);
-            String hypocenter = target.getString(2);
-            double north_lat = target.getDouble(3);
-            double east_long = target.getDouble(4);
-            int depth = target.getInt(5);
-            double magnitude = target.getDouble(6);
-            String max_int = target.getString(7);
-            String city_list = target.getString(8);
-            String message =target.getString(9);
-
-            setFont(2,sbuilder,"最大震度 <big><big>"+max_int+"</big></big>　マグニチュード <big><big>"+magnitude+"</big></big>");
-            if (depth==0) {
-                setFont(4, sbuilder, "発生時刻 : " + datetime + "<br>震源地　 : " + hypocenter + "<br>深さ　　 : ごく浅い");
-            }else{
-                setFont(4, sbuilder, "発生時刻 : " + datetime + "<br>震源地　 : " + hypocenter + "<br>深さ　　 : 約"+depth/1000+"km");
-            }
-            setFont(6,sbuilder,city_list.replaceAll("\n", "<br>"));
-            setFont(4,sbuilder,message);
-            sbuilder.append("<br><br>");
-
-            target.moveToNext();
-        }
-        target.close();
-        eqTextView.setText(Html.fromHtml(sbuilder.toString()));
-    }
-
-    private void setFont(int h_size,StringBuilder sbuilder,String string){
-        sbuilder.append("<h" + h_size + ">"+ string + "</h" + h_size + ">");
-    }
-
-    private void readData(String pref, String city) {
-        SQLiteDatabase db = dbm.getReadableDatabase();
-        StringBuilder sbuilder = new StringBuilder();
-        Cursor target = db.query(
-                "alert_view",
-                null,
-                "pref_name=? AND city_name=?",
-                new String[] {pref, city},
-                null,
-                null,
-                null
-        );
-        target.moveToFirst();
-//        Log.d(TAG, target.getString(1) + " " + target.getString(2));
-        if(target.getCount() > 0) {
-            String datetime = target.getString(0);
-            String warn = target.getString(3);
-            String message = target.getString(4);
-
-
-            if (warn.equals("")) {
-                sbuilder.append(pref).append(" ").append(city).append("\n")
-                        .append(datetime).append(" 発表\n\n")
-                        .append("気象警報・注意報は発表されていません");
-            } else {
-                sbuilder.append(pref).append(" ").append(city).append("\n")
-                        .append(datetime).append(" 発表\n")
-                        .append(warn).append("\n")
-                        .append(message);
-            }
-        } else {
-            sbuilder.append("");
-        }
-
-        target.close();
-        textView.setText(sbuilder.toString());
-
-    }
-
-
-    private void setPrefSpinner() {
-        SQLiteDatabase db = dbm.getReadableDatabase();
-        Cursor pref = db.query(
-                "pref",
-                new String[] {"name"},
-                null,
-                null,
-                null,
-                null,
-                "code ASC"
-        );
-        pref.moveToFirst();
-        String[] list = new String[pref.getCount() + 1];
-        list[0] = "都道府県";
-        for(int i = 0; i < pref.getCount(); i++) {
-            list[i + 1] = pref.getString(0);
-            pref.moveToNext();
-        }
-        pref.close();
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, list);
-        prefSpinner.setAdapter(adapter);
-        prefSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @SuppressLint("SetTextI18n")
+        animator_fabs = ObjectAnimator.ofFloat(fab_earthquake, "translationY", 0);
+        animator_fabs.setDuration(200);
+        animator_fabs.addListener(new AnimatorListenerAdapter(){
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItem = (String)parent.getSelectedItem();
-                SQLiteDatabase db = dbm.getReadableDatabase();
-                Cursor target = db.query(
-                        "pref",
-                        new String[] {"code"},
-                        "name=?",
-                        new String[] {selectedItem},
-                        null,
-                        null,
-                        null
-                );
-                target.moveToFirst();
-                if(target.getCount() > 0) setAreaSpinner(db, target.getInt(0));
-                if(!selectedItem.equals("都道府県")) textView.setText(selectedItem);
-                target.close();
-            }
-
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                textView.setText("Hello World!");
+            public void onAnimationEnd(Animator animator){
+                fab_earthquake.setVisibility(View.INVISIBLE);
+                super.onAnimationEnd(animator);
             }
         });
-    }
+        animator_fabs.start();
 
-    private void setAreaSpinner(SQLiteDatabase db, int code) {
-        Cursor area = db.query(
-                "city",
-                new String[] {"name"},
-                (code * 100000) + "<=code AND code<" + ((code + 1) * 100000),
-                null,
-                null,
-                null,
-                "code ASC"
-        );
-        area.moveToFirst();
-        String[] list = new String[area.getCount() + 1];
-        list[0] = "市区町村";
-        for(int i = 0; i < area.getCount(); i++) {
-            list[i + 1] = area.getString(0);
-            area.moveToNext();
-        }
-        area.close();
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, list);
-        areaSpinner.setAdapter(adapter);
-        areaSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @SuppressLint("SetTextI18n")
+        animator_fabs = ObjectAnimator.ofFloat(fab_map, "translationY", 0);
+        animator_fabs.setDuration(200);
+        animator_fabs.addListener(new AnimatorListenerAdapter(){
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                readData((String)prefSpinner.getSelectedItem(), (String)areaSpinner.getSelectedItem());
-            }
-
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                textView.setText("Hello World!");
+            public void onAnimationEnd(Animator animator){
+                fab_map.setVisibility(View.INVISIBLE);
+                super.onAnimationEnd(animator);
             }
         });
-    }
+        animator_fabs.start();
 
+        animator_fabs = ObjectAnimator.ofFloat(fab_net, "translationY", 0);
+        animator_fabs.start();
+
+        animator_fabs = ObjectAnimator.ofFloat(fab_close, "translationY", 0);
+        animator_fabs.start();
+
+        buttonState = ButtonState.CLOSE;
+    }
 }
