@@ -3,6 +3,7 @@ package com.example.teamet.light_app.network;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -82,7 +83,7 @@ public class Router extends Service {
 
         dbm = new DataBaseMake(getApplicationContext());
         JsonAsyncTask asyncTask = new JsonAsyncTask(dbm.getReadableDatabase());
-        asyncTask.execute();
+        asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         return START_STICKY;
     }
