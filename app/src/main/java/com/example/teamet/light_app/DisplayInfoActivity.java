@@ -22,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.teamet.light_app.database.DataBaseMake;
 import com.example.teamet.light_app.source.JsonAsyncTask;
@@ -127,7 +128,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
         if (buttonState == ButtonState.CLOSE){
             fabOpen(iconWhile);
         }else{
-            fabClose();
+            fabClose(view);
         }
     }
 
@@ -169,30 +170,31 @@ public class DisplayInfoActivity extends AppCompatActivity {
         }, 300);
     }
     public void mapFab(View view){
-        toolbar.setTitle(R.string.fab_text_map);
-        setSupportActionBar(toolbar);
-
-        layout_alarm.setVisibility(View.INVISIBLE);
-        layout_earthquake.setVisibility(View.INVISIBLE);
-        displayState = DisplayState.MAP;
-
-        infoFab(view);
-
-        new Handler().postDelayed(new Runnable(){
-            @Override
-            public void run(){
-                fabs[1] = fab_alarm;
-                fabs[0] = fab_earthquake;
-            }
-        }, 300);
+        Toast.makeText(DisplayInfoActivity.this, "未実装です", Toast.LENGTH_LONG).show();
+//        toolbar.setTitle(R.string.fab_text_map);
+//        setSupportActionBar(toolbar);
+//
+//        layout_alarm.setVisibility(View.INVISIBLE);
+//        layout_earthquake.setVisibility(View.INVISIBLE);
+//        displayState = DisplayState.MAP;
+//
+//        infoFab(view);
+//
+//        new Handler().postDelayed(new Runnable(){
+//            @Override
+//            public void run(){
+//                fabs[1] = fab_alarm;
+//                fabs[0] = fab_earthquake;
+//            }
+//        }, 300);
     }
 
-    public static float convertDp2Px(float dp, Context context){
+    private static float convertDp2Px(float dp, Context context){
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         return dp * metrics.density;
     }
 
-    public void fabOpen(int iconWhile){
+    private void fabOpen(int iconWhile){
         for(int i=0; i<fabs.length; i++){
             fabs[i].setVisibility(View.VISIBLE);
             animator_fabs = ObjectAnimator.ofFloat(fabs[i], "translationY", -1*iconWhile*i - convertDp2Px(64, this.getApplicationContext()));
@@ -202,7 +204,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
 
         buttonState = ButtonState.OPEN;
     }
-    public void fabClose(){
+    public void fabClose(View view){
         animator_fabs = ObjectAnimator.ofFloat(fabs[0], "translationY", 0);
         animator_fabs.setDuration(200);
         animator_fabs.addListener(new AnimatorListenerAdapter(){

@@ -5,6 +5,6 @@
     <string name="fab_text_alarm">" 警報・注意報 "</string>
     <string name="fab_text_info">" 情報を見る "</string>
     <string name="fab_text_map">" 災害マップ（未実装）"</string>
-    <string name="fab_text_setNet">" ネットワークの設定 "</string>
+    <string name="fab_text_setNet">"インターネット（未実装） "</string>
     <string name="fab_text_earthquake">" 地震情報 "</string>
 </resources>

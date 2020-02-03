@@ -72,12 +72,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    //    ネットワーク設定
-    public void netSet(View view){
-        Log.v("Function", "netSet");
+    //    インターネットに接続
+    public void conNet(View view){
+        Log.v("Function", "conNet");
 
-        Intent intent = new Intent(this, NetworkSetActivity.class);
-        startActivity(intent);
+        Toast.makeText(MainActivity.this, "未実装です", Toast.LENGTH_LONG).show();
     }
 
 //    アプリの終了
