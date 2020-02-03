@@ -1,68 +1,172 @@
 package com.example.teamet.light_app;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
-import android.widget.*;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Client cl;
-    private EditText et;
-    private EditText ip;
-    private EditText port;
-    private Button send;
-    private Button cn;
-    private Button trans;
-
-    public boolean isEmpty(EditText editText){
-        return editText.getText().toString().trim().length() == 0;
-    }
+    private LinearLayout[] fabs;
+    private LinearLayout fab_alarm;
+    private LinearLayout fab_earthquake;
+    private LinearLayout fab_map;
+    private LinearLayout fab_net;
+    private LinearLayout fab_close;
+    private ObjectAnimator animator_fabs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        et = this.findViewById(R.id.editText);
-        ip = this.findViewById(R.id.IP);
-        port = this.findViewById(R.id.PORT);
-        send = this.findViewById(R.id.send);
-        cn = this.findViewById(R.id.connect);
-        trans = this.findViewById(R.id.transition);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
 
-        send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String cx = "";
-                if(!isEmpty(ip) && !isEmpty(port) && !isEmpty(et)) {
-                    cl = new Client(et, ip, port, getApplicationContext());
-                    cl.execute(cx);
-                }else{}
-            }
-        });
+        fab_alarm = findViewById(R.id.main_menu_alarm);
+        fab_earthquake = findViewById(R.id.main_menu_earthquake);
+        fab_map = findViewById(R.id.main_menu_map);
 
-        trans.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, SubActivity.class));
-            }
-        });
+        fabs = new LinearLayout[3];
+        fabs[0] = fab_alarm;
+        fabs[1] = fab_earthquake;
+        fabs[2] = fab_map;
 
-        Intent serviceIntent = new Intent(getApplication(), Router.class);
-        String channelID = "com.light-app.test";
-        CharSequence channelName = "light-app channel";
-        if(Build.VERSION.SDK_INT >= 26){
-            NotificationChannel channel = new NotificationChannel(channelID, channelName, NotificationManager.IMPORTANCE_DEFAULT);
-            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            manager.createNotificationChannel(channel);
+        fab_net = findViewById(R.id.main_menu_net);
+        fab_close = findViewById(R.id.main_menu_close);
+    }
+
+//    情報の表示
+    public void pushAlarmFab(View view){
+        Intent intent = new Intent(this, DisplayInfoActivity.class);
+        intent.putExtra("info_type", "alarm");
+
+        dispInfo(intent);
+    }
+
+    public void pushEarthquakeFab(View view){
+        Intent intent = new Intent(this, DisplayInfoActivity.class);
+        intent.putExtra("info_type", "earthquake");
+
+        dispInfo(intent);
+    }
+
+    public void pushMapFab(View view){
+        Intent intent = new Intent(this, DisplayInfoActivity.class);
+        intent.putExtra("into_type", "map");
+        Toast.makeText(MainActivity.this, "未実装です", Toast.LENGTH_LONG).show();
+
+        //dispInfo(intent);
+    }
+
+    private void dispInfo(Intent intent){
+        startActivity(intent);
+    }
+
+    //    インターネットに接続
+    public void conNet(View view){
+        Log.v("Function", "conNet");
+
+        Toast.makeText(MainActivity.this, "未実装です", Toast.LENGTH_LONG).show();
+    }
+
+//    アプリの終了
+    public void closeApp(View view){
+        this.finish();
+    }
+
+//    fabの制御
+    private enum ButtonState{
+        OPEN,
+        CLOSE
+    }
+
+    private ButtonState buttonState = ButtonState.CLOSE;
+
+    public void infoFab(View view){
+        Log.v("button", "infoFab");
+        int iconWhile = (int) convertDp2Px(56, this.getApplicationContext());
+
+        if (buttonState == ButtonState.CLOSE){
+            fabOpen(iconWhile);
+        }else{
+            fabClose();
         }
-        startService(serviceIntent);
+    }
+
+    public static float convertDp2Px(float dp, Context context){
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return dp * metrics.density;
+    }
+
+    public void fabOpen(int iconWhile){
+        for(int i=0; i<fabs.length; i++){
+            fabs[i].setVisibility(View.VISIBLE);
+            animator_fabs = ObjectAnimator.ofFloat(fabs[i], "translationY", iconWhile*i + convertDp2Px(64, this.getApplicationContext()));
+            animator_fabs.setDuration(200);
+            animator_fabs.start();
+        }
+
+        animator_fabs = ObjectAnimator.ofFloat(fab_net, "translationY", convertDp2Px(168, this.getApplicationContext()));
+        animator_fabs.setDuration(200);
+        animator_fabs.start();
+
+        animator_fabs = ObjectAnimator.ofFloat(fab_close, "translationY", convertDp2Px(168, this.getApplicationContext()));
+        animator_fabs.setDuration(200);
+        animator_fabs.start();
+
+        buttonState = ButtonState.OPEN;
+    }
+
+    public void fabClose(){
+        animator_fabs = ObjectAnimator.ofFloat(fab_alarm, "translationY", 0);
+        animator_fabs.setDuration(200);
+        animator_fabs.addListener(new AnimatorListenerAdapter(){
+            @Override
+            public void onAnimationEnd(Animator animator){
+                fab_alarm.setVisibility(View.INVISIBLE);
+                super.onAnimationEnd(animator);
+            }
+        });
+        animator_fabs.start();
+
+        animator_fabs = ObjectAnimator.ofFloat(fab_earthquake, "translationY", 0);
+        animator_fabs.setDuration(200);
+        animator_fabs.addListener(new AnimatorListenerAdapter(){
+            @Override
+            public void onAnimationEnd(Animator animator){
+                fab_earthquake.setVisibility(View.INVISIBLE);
+                super.onAnimationEnd(animator);
+            }
+        });
+        animator_fabs.start();
+
+        animator_fabs = ObjectAnimator.ofFloat(fab_map, "translationY", 0);
+        animator_fabs.setDuration(200);
+        animator_fabs.addListener(new AnimatorListenerAdapter(){
+            @Override
+            public void onAnimationEnd(Animator animator){
+                fab_map.setVisibility(View.INVISIBLE);
+                super.onAnimationEnd(animator);
+            }
+        });
+        animator_fabs.start();
+
+        animator_fabs = ObjectAnimator.ofFloat(fab_net, "translationY", 0);
+        animator_fabs.start();
+
+        animator_fabs = ObjectAnimator.ofFloat(fab_close, "translationY", 0);
+        animator_fabs.start();
+
+        buttonState = ButtonState.CLOSE;
     }
 }

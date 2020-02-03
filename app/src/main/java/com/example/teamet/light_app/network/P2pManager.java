@@ -1,17 +1,14 @@
-package com.example.teamet.light_app;
+package com.example.teamet.light_app.network;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.support.v4.util.Consumer;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.net.InetAddress;
@@ -109,5 +106,19 @@ public class P2pManager {
     // 成功メッセージ生成
     private String successMsg(String fnName) {
         return fnName + "(...) success.";
+    }
+
+    public void requestIsGroupOwner(final Consumer<Boolean> consumer) {
+        manager.requestGroupInfo(channel, new WifiP2pManager.GroupInfoListener() {
+            @Override
+            public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
+                if (wifiP2pGroup == null) {
+                    Log.v("P2pManager", "wifiP2pGroup == null");
+                }
+                else {
+                    consumer.accept(wifiP2pGroup.isGroupOwner());
+                }
+            }
+        });
     }
 }

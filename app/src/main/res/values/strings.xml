@@ -1,10 +1,9 @@
 <resources>
     <string name="app_name">light-app</string>
-    <string name="wifi_direct">WiFi Direct</string>
-    <string name="requestpeers">requestPeers</string>
-    <string name="peers_discovery">Peers Discovery</string>
-    <string name="connect">connect</string>
-    <string name="textview">TextView</string>
-    <string name="connecting">connecting</string>
-    <string name ="disconnect">disconnect</string>
+    <string name="fab_text_setNet">インターネット（未実装）</string>
+    <string name="fab_text_info">" 情報を見る "</string>
+    <string name="fab_text_alarm">" 警報・注意報 "</string>
+    <string name="fab_text_earthquake">" 地震情報 "</string>
+    <string name="fab_text_map">" 災害マップ（未実装）"</string>
+    <string name="fab_text_close">" アプリを閉じる "</string>
 </resources>

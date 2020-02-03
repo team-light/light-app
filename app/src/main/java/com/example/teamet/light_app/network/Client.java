@@ -1,40 +1,49 @@
-package com.example.teamet.light_app;
+package com.example.teamet.light_app.network;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.EditText;
+import android.os.Handler;
+import android.util.Log;
 import android.widget.Toast;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class Client extends AsyncTask<String, Void, String> {
-
     public static String HOST;
     public static int PORT;
 
     private Socket sc;
     private BufferedReader br;
     private PrintWriter pw;
-    private EditText et;
-    private EditText ip;
-    private EditText port;
+    private InetAddress addr;
+    private String port;
     private Context context;
     private int duration = Toast.LENGTH_SHORT;
+    private Handler handler;
     private Toast toast;
     private File json;
     private BufferedReader jsonBR;
 
-    public Client(EditText editText, EditText ipText, EditText portText, Context co){
-        et = editText;
-        ip = ipText;
-        port = portText;
+    public Client(InetAddress addr, String port, Context co){
+        this.addr = addr;
+        this.port = port;
         context = co;
+        handler = new Handler();
     }
 
-    protected String doInBackground(String... cx){
+    protected String doInBackground(String... cx) {
         Connect();
-        return "success";
+        return null;
     }
 
     protected  void onPostExecute(String result){
@@ -58,9 +67,8 @@ public class Client extends AsyncTask<String, Void, String> {
     }
 
     public void Connect(){
-        HOST = ip.getText().toString();
-        String tmp = port.getText().toString();
-        PORT = Integer.parseInt(tmp);
+        HOST = addr.toString();
+        PORT = Integer.parseInt(port);
         try {
             sc = new Socket(HOST, PORT);
             br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
@@ -74,5 +82,19 @@ public class Client extends AsyncTask<String, Void, String> {
             //toast.show();
             e.printStackTrace();
         }
+    }
+
+    private void showToast(final String text) {
+        execMainLooper(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, text, duration).show();
+                Log.v("toast:", text);
+            }
+        });
+    }
+
+    private void execMainLooper(Runnable runnable) {
+        handler.post(runnable);
     }
 }
