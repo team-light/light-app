@@ -50,7 +50,9 @@ public class Server extends AsyncTask<String, Void, Void> {
 
         do {
             lenRecved = br.read(buf, 0, BUF_SIZE);
-            sb.append(buf, 0, lenRecved);
+            if (lenRecved != -1) {
+                sb.append(buf, 0, lenRecved);
+            }
         } while (lenRecved == BUF_SIZE);
 
         return sb.toString();
@@ -85,7 +87,11 @@ public class Server extends AsyncTask<String, Void, Void> {
                     String data = recv();
                     if (data.length() == 0) {
                         Log.v("Server", "Received empty data.");
-                        clients.add( sc.getInetAddress() );
+                        if (!clients.contains(sc.getInetAddress())) {
+                            clients.add(sc.getInetAddress());
+                        }
+
+                        Log.v("Server", "Current client list: " + clients.toString());
                     }
                     else {
                         Log.v("Server", "Received non-empty data.");
