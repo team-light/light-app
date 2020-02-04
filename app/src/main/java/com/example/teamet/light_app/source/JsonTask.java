@@ -3,19 +3,25 @@ package com.example.teamet.light_app.source;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.content.Context;
 
-import com.example.teamet.light_app.DisplayInfoActivity;
 import com.example.teamet.light_app.network.Router;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
+import java.io.BufferedWriter;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.TimerTask;
+
+import javax.net.ssl.HttpsURLConnection;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class JsonTask extends TimerTask {
 
@@ -23,27 +29,30 @@ public class JsonTask extends TimerTask {
     private final int READ_TIMEOUT = 30 * 1000;
     private final int CONNECT_TIMEOUT = 30 * 1000;
 
-    private final String url = "http://ko-kon.sakura.ne.jp/light-app/json/data.json";
+    private final String URL = "http://ko-kon.sakura.ne.jp/light-app/json/data.json";
+
+    private final Context context;
+    private final String JSON_FNAME = "data.json";
+
+    private JSONObject timestamp;
 
     private SQLiteDatabase db;
+
     private Router router;
+
 
     public JsonTask(SQLiteDatabase db, Router router) {
         super();
+        this.context = router.getApplicationContext();
+        this.timestamp = new JSONObject();
         this.db = db;
         this.router = router;
     }
 
     @Override
     public void run() {
-        this.getInfo();
-    }
-
-    private void getInfo(){
-        Log.d(TAG, "getInfo");
-
         try {
-            HttpURLConnection con = (HttpURLConnection)new URL(this.url).openConnection();
+            HttpURLConnection con = (HttpURLConnection)new URL(this.URL).openConnection();
             con.setReadTimeout(this.READ_TIMEOUT);
             con.setConnectTimeout(this.CONNECT_TIMEOUT);
             con.setRequestMethod("POST");
@@ -51,18 +60,49 @@ public class JsonTask extends TimerTask {
             con.setDoOutput(false);
             con.connect();
 
-            Log.d(TAG, "connected");
+            if(con.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+                Log.d(TAG, "connected");
+                BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                StringBuilder sbuilder = new StringBuilder();
+                String str;
+                while((str = br.readLine()) != null) {
+                    sbuilder.append(str);
+                }
+                br.close();
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                PrintWriter pr = new PrintWriter(new BufferedWriter(new OutputStreamWriter(this.context.openFileOutput(this.JSON_FNAME, MODE_PRIVATE), "UTF-8")));
+                pr.print(sbuilder);
+                pr.close();
 
-            StringBuilder builder = new StringBuilder();
-            String str;
-            while((str = br.readLine()) != null) {
-                builder.append(str);
+                JSONObject json = new JSONObject(sbuilder.toString());
+                if(!json.getJSONObject("timestamp").equals(timestamp)) {
+                    this.timestamp = json.getJSONObject("timestamp");
+                    this.router.sendJsonToGroupOwner();
+                    this.getInfo(json);
+                }
+            } else {
+                BufferedReader br = new BufferedReader(new InputStreamReader(this.context.openFileInput(this.JSON_FNAME), "UTF-8"));
+                StringBuilder sbuilder = new StringBuilder();
+                String str;
+                while ((str = br.readLine()) != null) {
+                    sbuilder.append(str);
+                }
+                br.close();
+
+                JSONObject json = new JSONObject(sbuilder.toString());
+                if(!json.getJSONObject("timestamp").equals(this.timestamp)) {
+                    this.timestamp = json.getJSONObject("timestamp");
+                    this.getInfo(json);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-            JSONObject json = new JSONObject(builder.toString());
-
+    private void getInfo(JSONObject json){
+        Log.d(TAG, "getInfo");
+        try {
             // 気象警報・注意報
             JSONObject warn = json.getJSONObject("warn");
             JSONArray key = warn.names();

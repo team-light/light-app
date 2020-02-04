@@ -46,8 +46,15 @@ public class Router extends Service {
 
         pm = new P2pManager(this);
 
-        server = new Server(String.valueOf(PORT), Router.this, pm);
-        server.execute();
+        pm.requestIsGroupOwner(new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean isGroupOwner) {
+                if (isGroupOwner) {
+                    server = new Server(String.valueOf(PORT), Router.this, pm);
+                    server.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }
+            }
+        });
 
         new Thread(new Runnable() {
             @Override
@@ -60,6 +67,7 @@ public class Router extends Service {
                         public void accept(Boolean isGroupOwner) {
                             if (isGroupOwner) {
                                 Log.v("Router", "Group-owner is me.");
+                                sendJsonToGroupOwner();
                             }
                             else {
                                 pm.requestIPAddr(new Consumer<InetAddress>() {
@@ -102,18 +110,28 @@ public class Router extends Service {
     }
 
     public void sendJsonToGroupOwner() {
-        pm.requestIPAddr(new Consumer<InetAddress>() {
+        pm.requestIsGroupOwner(new Consumer<Boolean>() {
             @Override
-            public void accept(InetAddress inetAddress) {
-                if (inetAddress == null) {
-                    Log.v("Router", "Failed fetching Group-owner IP address in sendJsonToGroupOwner().");
-                    return;
+            public void accept(Boolean isGroupOwner) {
+                if (isGroupOwner) {
+                    server.sendClients();
                 }
+                else {
+                    pm.requestIPAddr(new Consumer<InetAddress>() {
+                        @Override
+                        public void accept(InetAddress inetAddress) {
+                            if (inetAddress == null) {
+                                Log.v("Router", "Failed fetching Group-owner IP address in sendJsonToGroupOwner().");
+                                return;
+                            }
 
-                Log.v("Router", String.format("Sending json to group-owner [%s:%d] ...", inetAddress.toString(), PORT));
+                            Log.v("Router", String.format("Sending json to group-owner [%s:%d] ...", inetAddress.toString(), PORT));
 
-                Client client = new Client(inetAddress, String.valueOf(PORT), Router.this);
-                client.execute();
+                            Client client = new Client(inetAddress, String.valueOf(PORT), Router.this);
+                            client.execute();
+                        }
+                    });
+                }
             }
         });
     }

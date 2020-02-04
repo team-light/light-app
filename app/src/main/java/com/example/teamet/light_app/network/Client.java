@@ -29,7 +29,6 @@ public class Client extends AsyncTask<String, Void, String> {
     private String port;
     private Context context;
     private int duration = Toast.LENGTH_SHORT;
-    private Handler handler;
     private Toast toast;
     private File json;
     private BufferedReader jsonBR;
@@ -38,7 +37,6 @@ public class Client extends AsyncTask<String, Void, String> {
         this.addr = addr;
         this.port = port;
         context = co;
-        handler = new Handler();
     }
 
     protected String doInBackground(String... cx) {
@@ -86,19 +84,5 @@ public class Client extends AsyncTask<String, Void, String> {
             Log.v("Client", e.toString());
             e.printStackTrace();
         }
-    }
-
-    private void showToast(final String text) {
-        execMainLooper(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, text, duration).show();
-                Log.v("toast:", text);
-            }
-        });
-    }
-
-    private void execMainLooper(Runnable runnable) {
-        handler.post(runnable);
     }
 }
