@@ -89,7 +89,12 @@ public class P2pManager {
         manager.requestConnectionInfo(channel, new WifiP2pManager.ConnectionInfoListener() {
             @Override
             public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
-                callback.accept( wifiP2pInfo.groupOwnerAddress );
+                (new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.accept( wifiP2pInfo.groupOwnerAddress );
+                    }
+                })).start();
             }
         });
     }
@@ -116,7 +121,12 @@ public class P2pManager {
                     Log.v("P2pManager", "wifiP2pGroup == null");
                 }
                 else {
-                    consumer.accept(wifiP2pGroup.isGroupOwner());
+                    (new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            consumer.accept(wifiP2pGroup.isGroupOwner());
+                        }
+                    })).start();
                 }
             }
         });

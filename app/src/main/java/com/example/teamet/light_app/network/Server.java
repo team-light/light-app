@@ -108,7 +108,7 @@ public class Server extends AsyncTask<String, Void, Void> {
                     br.close();
                     sc.close();
                 } catch (Exception ex){
-                    showToast(ex.toString());
+                    ex.printStackTrace();
                 }
             }
         }catch (IOException e){
