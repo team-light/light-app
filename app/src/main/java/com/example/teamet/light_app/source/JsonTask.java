@@ -77,7 +77,7 @@ public class JsonTask extends TimerTask {
                 JSONObject json = new JSONObject(sbuilder.toString());
                 if(!json.getJSONObject("timestamp").equals(timestamp)) {
                     this.timestamp = json.getJSONObject("timestamp");
-                    this.router.sendJsonToGroupOwner();
+                    this.router.onUpdatedJson();
                     this.getInfo(json);
                 }
             } else {

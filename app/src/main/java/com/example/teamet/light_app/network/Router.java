@@ -14,17 +14,29 @@ import com.example.teamet.light_app.R;
 import com.example.teamet.light_app.database.DataBaseMake;
 import com.example.teamet.light_app.source.JsonAsyncTask;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
 public class Router extends Service {
     public static final int PORT = 4567;
     private final double PERIOD_SEC = 10.0;
+    public final int BUF_SIZE = 1024;
+
+    public static final byte METHOD_GET = 0x00;
+    public static final byte METHOD_POST = 0x01;
 
     private P2pManager pm = null;
     private Server server;
     private DataBaseMake dbm;
+    private char[] buf = new char[BUF_SIZE];
 
 
     @Nullable
@@ -50,7 +62,7 @@ public class Router extends Service {
             @Override
             public void accept(Boolean isGroupOwner) {
                 if (isGroupOwner) {
-                    server = new Server(String.valueOf(PORT), Router.this, pm);
+                    server = new Server(Router.this, pm);
                     server.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
@@ -67,7 +79,6 @@ public class Router extends Service {
                         public void accept(Boolean isGroupOwner) {
                             if (isGroupOwner) {
                                 Log.v("Router", "Group-owner is me.");
-                                sendJsonToGroupOwner();
                             }
                             else {
                                 pm.requestIPAddr(new Consumer<InetAddress>() {
@@ -80,8 +91,19 @@ public class Router extends Service {
 
                                         try {
                                             Socket sc = new Socket(inetAddress, PORT);
+                                            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
+                                            BufferedReader br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
+
+                                            pw.print(METHOD_GET);
+                                            pw.flush();
+                                            Log.v("Router", String.format("Sent GET request to group-owner [%s:%d].", inetAddress.toString(), PORT));
+
+                                            String json = recv(br, buf);
+                                            saveJson(json);
+                                            Log.v("Router", String.format("Received json from group-owner [%s:%d] and saved.", inetAddress.toString(), PORT));
+
                                             sc.close();
-                                            Log.v("Router", String.format("Sent empty data to group-owner [%s:%d].", inetAddress.toString(), PORT));
+
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         }
@@ -109,14 +131,11 @@ public class Router extends Service {
         return START_STICKY;
     }
 
-    public void sendJsonToGroupOwner() {
+    public void onUpdatedJson() {
         pm.requestIsGroupOwner(new Consumer<Boolean>() {
             @Override
             public void accept(Boolean isGroupOwner) {
-                if (isGroupOwner) {
-                    server.sendClients();
-                }
-                else {
+                if (!isGroupOwner) {
                     pm.requestIPAddr(new Consumer<InetAddress>() {
                         @Override
                         public void accept(InetAddress inetAddress) {
@@ -135,4 +154,54 @@ public class Router extends Service {
             }
         });
     }
+
+    public static void saveJson(String data){
+        try {
+            Log.v("Router", "Saving JSON...");
+            PrintWriter pw = new PrintWriter("assets\\data.json", "UTF-8");
+            pw.print(data);
+            pw.close();
+            Log.v("Router", "Saved JSON.");
+        } catch(IOException e) {
+            Log.v("Router", "Failed saving JSON: " + e.toString());
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendJsonFile(Socket sc, boolean withHeader){
+        Log.v("Router", "Sending JSON file...");
+
+        try {
+            File json = new File("assets\\data.json");
+            BufferedReader jsonBR = new BufferedReader(new InputStreamReader(new FileInputStream(json), "UTF-8"));
+            String str = jsonBR.readLine();//送信するjsonファイルが1行のみである前提で1行しか読み込ませない
+
+            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
+            if (withHeader) {
+                pw.print(METHOD_POST);
+            }
+            pw.println(str);
+            pw.flush();
+        } catch(IOException e) {
+            //toast = Toast.makeText(context, "ファイルの入出力中にエラーが発生しました"+e.toString(), duration);
+            //toast.show();
+            Log.v("Router", e.toString());
+            e.printStackTrace();
+        }
+    }
+
+    public static String recv(BufferedReader br, char[] buf) throws IOException {
+        int lenRecved;
+        StringBuilder sb = new StringBuilder();
+
+        do {
+            lenRecved = br.read(buf, 0, buf.length);
+            if (lenRecved != -1) {
+                sb.append(buf, 0, lenRecved);
+            }
+        } while (lenRecved == buf.length);
+
+        return sb.toString();
+    }
+
 }

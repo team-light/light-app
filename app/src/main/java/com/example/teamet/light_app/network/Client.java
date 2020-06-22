@@ -49,30 +49,12 @@ public class Client extends AsyncTask<String, Void, String> {
         //toast.show();
     }
 
-    public void sendJsonFile(){
-        Log.v("Client", "Sending JSON file...");
-        try {
-            json = new File("assets\\data.json");
-            jsonBR = new BufferedReader(new InputStreamReader(new FileInputStream(json), "UTF-8"));
-            String str = jsonBR.readLine();//送信するjsonファイルが1行のみである前提で1行しか読み込ませない
-            pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
-            pw.println(str);
-            pw.flush();
-        }catch(IOException e){
-            //toast = Toast.makeText(context, "ファイルの入出力中にエラーが発生しました"+e.toString(), duration);
-            //toast.show();
-            Log.v("Client", e.toString());
-            e.printStackTrace();
-        }
-    }
-
     public void Connect(){
         HOST = addr.toString();
         PORT = Integer.parseInt(port);
         try {
             sc = new Socket(HOST, PORT);
-            br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
-            sendJsonFile();
+            Router.sendJsonFile(sc, true);
         }catch (UnknownHostException e){
             //toast = Toast.makeText(context, "ホストが特定できませんでした", duration);
             //toast.show();

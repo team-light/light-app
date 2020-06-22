@@ -31,7 +31,7 @@ public class Server extends AsyncTask<String, Void, Void> {
     private ArrayList<InetAddress> clients;
     private P2pManager pm;
 
-    public Server(String port, Context context, P2pManager pm){
+    public Server(Context context, P2pManager pm){
         co = context;
         buf = new char[BUF_SIZE];
         clients = new ArrayList<>();
@@ -44,35 +44,8 @@ public class Server extends AsyncTask<String, Void, Void> {
         return null;
     }
 
-    private String recv() throws IOException {
-        int lenRecved;
-        StringBuilder sb = new StringBuilder();
-
-        do {
-            lenRecved = br.read(buf, 0, BUF_SIZE);
-            if (lenRecved != -1) {
-                sb.append(buf, 0, lenRecved);
-            }
-        } while (lenRecved == BUF_SIZE);
-
-        return sb.toString();
-    }
-
-    public void saveJson(String data){
-        try {
-            Log.v("Server", "Saving JSON...");
-            PrintWriter pw = new PrintWriter("assets\\data.json", "UTF-8");
-            pw.print(data);
-            pw.close();
-            Log.v("Server", "Saved JSON.");
-        }catch(IOException e){
-            Log.v("Server", "Failed saving JSON: " + e.toString());
-            e.printStackTrace();
-        }
-    }
-
     public void accept(){
-        try{
+        try {
             ServerSocket ss = new ServerSocket(Router.PORT);
 
             Log.v( "Server", String.format("Listening on %s:%d ...", ss.getInetAddress().toString(), ss.getLocalPort()) );
@@ -84,21 +57,30 @@ public class Server extends AsyncTask<String, Void, Void> {
 
                     br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
 
-                    String data = recv();
-                    if (data.length() == 0) {
-                        Log.v("Server", "Received empty data.");
-                        if (!clients.contains(sc.getInetAddress())) {
-                            clients.add(sc.getInetAddress());
-                        }
+                    String data = Router.recv(br, buf);
 
-                        Log.v("Server", "Current client list: " + clients.toString());
+                    byte method = data.getBytes()[0];
+                    String text = new String(data.getBytes("UTF-8"), 1, data.getBytes().length - 1, "UTF-8");
 
-                        sendClients();
+                    switch (method) {
+                        case Router.METHOD_POST:
+                            Log.v("Server", "Received POST request.");
+                            Router.saveJson(text);
+                            break;
+
+                        case Router.METHOD_GET:
+                            Log.v("Server", "Received GET request.");
+                            Router.sendJsonFile(sc, false);
+                            break;
+
+                        default:
+                            Log.v("Server", "Received unknown method request.");
                     }
-                    else {
-                        Log.v("Server", "Received non-empty data.");
-                        saveJson(data);
+
+                    if (!clients.contains(sc.getInetAddress())) {
+                        clients.add(sc.getInetAddress());
                     }
+                    Log.v("Server", "Current client list: " + clients.toString());
 
                     br.close();
                     sc.close();
@@ -106,42 +88,7 @@ public class Server extends AsyncTask<String, Void, Void> {
                     ex.printStackTrace();
                 }
             }
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    void sendClients() {
-        Log.v("Server", "Group-owner is me.");
-        for (InetAddress addr : clients) {
-            Client client = new Client(addr, String.valueOf(Router.PORT), co);
-            client.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
-    }
-
-
-    public void sendJsonFile(){
-        Log.v("Client", "Sending JSON file...");
-        try {
-            File json = new File("assets\\data.json");
-            BufferedReader jsonBR = new BufferedReader(new InputStreamReader(new FileInputStream(json), "UTF-8"));
-            String str = jsonBR.readLine();//送信するjsonファイルが1行のみである前提で1行しか読み込ませない
-            pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
-            pw.println(str);
-            pw.flush();
-        }catch(IOException e){
-            //toast = Toast.makeText(context, "ファイルの入出力中にエラーが発生しました"+e.toString(), duration);
-            //toast.show();
-            Log.v("Client", e.toString());
-            e.printStackTrace();
-        }
-    }
-
-    public void send(String data){
-        try{
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
-            pw.write(data);
-        }catch(Exception e){
+        } catch (IOException e){
             e.printStackTrace();
         }
     }
