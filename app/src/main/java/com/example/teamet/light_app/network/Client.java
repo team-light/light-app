@@ -15,14 +15,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.net.Socket;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.net.UnknownHostException;
 
 public class Client extends AsyncTask<String, Void, String> {
     public static String HOST;
     public static int PORT;
 
-    private Socket sc;
+    private SSLSocket sc;
     private BufferedReader br;
     private PrintWriter pw;
     private InetAddress addr;
@@ -33,6 +34,7 @@ public class Client extends AsyncTask<String, Void, String> {
     private Toast toast;
     private File json;
     private BufferedReader jsonBR;
+    private SSLSocketFactory fact;
 
     public Client(InetAddress addr, String port, Context co){
         this.addr = addr;
@@ -70,7 +72,8 @@ public class Client extends AsyncTask<String, Void, String> {
         HOST = addr.toString();
         PORT = Integer.parseInt(port);
         try {
-            sc = new Socket(HOST, PORT);
+            fact = (SSLSocketFactory)SSLSocketFactory.getDefault();
+            sc = (SSLSocket)fact.createSocket(HOST, PORT);
             br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
             sendJsonFile();
         }catch (UnknownHostException e){

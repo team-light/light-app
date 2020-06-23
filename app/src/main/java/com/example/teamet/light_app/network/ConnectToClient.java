@@ -8,15 +8,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.Socket;
+import javax.net.ssl.SSLSocket;
 
 public class ConnectToClient extends Thread {
-    private Socket sc;
+    private SSLSocket sc;
     private PrintWriter pw;
     private BufferedReader br;
     private TextView result;
 
-    public ConnectToClient(Socket s, TextView tx){
+    public ConnectToClient(SSLSocket s, TextView tx){
         sc = s;
         result = tx;
     }
