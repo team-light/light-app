@@ -15,8 +15,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLServerSocketFactory;
 import java.util.ArrayList;
 
 public class Server extends AsyncTask<String, Void, Void> {
@@ -24,7 +26,9 @@ public class Server extends AsyncTask<String, Void, Void> {
 
     private Context co;
     private int duration = Toast.LENGTH_SHORT;
-    private Socket sc;
+    private SSLSocket sc;
+    private SSLSocketFactory fact;
+    private SSLServerSocketFactory ssFact;
     private Handler handler;
     private BufferedReader br;
     private char[] buf;
@@ -69,10 +73,13 @@ public class Server extends AsyncTask<String, Void, Void> {
 
     public void accept(){
         try{
-            ServerSocket ss = new ServerSocket(Router.PORT);
+            ssFact = (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
+            SSLServerSocket ss = (SSLServerSocket)ssFact.createServerSocket (Router.PORT);
+            fact = (SSLSocketFactory)SSLSocketFactory.getDefault();
+            sc = (SSLSocket)fact.createSocket();
             while(true){
                 try{
-                    sc = ss.accept();
+                    sc = (SSLSocket) ss.accept();
                     br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
 
                     String data = recv();
