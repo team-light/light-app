@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="arcgis_license_key" translatable="false">runtimelite,1000,rud5359021035,none,JFB3LNBHPFG2LMZ59238</string>
+    <string-array name="spinner_array">
+        <item>"ピンなし"</item>
+        <item>"警報情報"</item>
+        <item>"地震情報"</item>
+    </string-array>
+</resources>

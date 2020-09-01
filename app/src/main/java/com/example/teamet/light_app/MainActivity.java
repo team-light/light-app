@@ -52,20 +52,17 @@ public class MainActivity extends AppCompatActivity {
 
         dispInfo(intent);
     }
-
     public void pushEarthquakeFab(View view){
         Intent intent = new Intent(this, DisplayInfoActivity.class);
         intent.putExtra("info_type", "earthquake");
 
         dispInfo(intent);
     }
-
     public void pushMapFab(View view){
         Intent intent = new Intent(this, DisplayInfoActivity.class);
-        intent.putExtra("into_type", "map");
-        Toast.makeText(MainActivity.this, "未実装です", Toast.LENGTH_LONG).show();
+        intent.putExtra("info_type", "map");
 
-        //dispInfo(intent);
+        dispInfo(intent);
     }
 
     private void dispInfo(Intent intent){
@@ -126,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
 
         buttonState = ButtonState.OPEN;
     }
-
     public void fabClose(){
         animator_fabs = ObjectAnimator.ofFloat(fab_alarm, "translationY", 0);
         animator_fabs.setDuration(200);

@@ -21,15 +21,15 @@ public class SplashActivity extends AppCompatActivity {
 
         Handler hdl = new Handler();
 
-        Intent serviceIntent = new Intent(getApplication(), Router.class);
-        String channelID = "com.light-app.test";
-        CharSequence channelName = "light-app channel";
-        if(Build.VERSION.SDK_INT >= 26){
-            NotificationChannel channel = new NotificationChannel(channelID, channelName, NotificationManager.IMPORTANCE_DEFAULT);
-            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            manager.createNotificationChannel(channel);
-        }
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(getApplication(), Router.class);
+//        String channelID = "com.light-app.test";
+//        CharSequence channelName = "light-app channel";
+//        if(Build.VERSION.SDK_INT >= 26){
+//            NotificationChannel channel = new NotificationChannel(channelID, channelName, NotificationManager.IMPORTANCE_DEFAULT);
+//            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//            manager.createNotificationChannel(channel);
+//        }
+//        startService(serviceIntent);
 
         hdl.postDelayed(new splashHandler(), 500);
     }
