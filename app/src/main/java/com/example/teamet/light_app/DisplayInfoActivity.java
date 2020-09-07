@@ -47,6 +47,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 public class DisplayInfoActivity extends AppCompatActivity {
     private Toolbar toolbar;
@@ -151,7 +152,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
         }
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         setPrefSpinner();
@@ -201,18 +202,15 @@ public class DisplayInfoActivity extends AppCompatActivity {
 
         layout_alarm.setVisibility(View.VISIBLE);
         layout_earthquake.setVisibility(View.INVISIBLE);
-        layout_map.setVisibility(view.INVISIBLE);
+        layout_map.setVisibility(View.INVISIBLE);
         displayState = DisplayState.ALARM;
         mapView_map.pause();
 
         infoFab(view);
 
-        new Handler().postDelayed(new Runnable(){
-            @Override
-            public void run(){
-                fabs[1] = fab_earthquake;
-                fabs[0] = fab_map;
-            }
+        new Handler().postDelayed(() -> {
+            fabs[1] = fab_earthquake;
+            fabs[0] = fab_map;
         }, 300);
     }
     public void earthquakeFab(View view){
@@ -221,19 +219,16 @@ public class DisplayInfoActivity extends AppCompatActivity {
 
         layout_alarm.setVisibility(View.INVISIBLE);
         layout_earthquake.setVisibility(View.VISIBLE);
-        layout_map.setVisibility(view.INVISIBLE);
+        layout_map.setVisibility(View.INVISIBLE);
         displayState = DisplayState.EARTHQUAKE;
         mapView_map.pause();
         readEqData();
 
         infoFab(view);
 
-        new Handler().postDelayed(new Runnable(){
-            @Override
-            public void run(){
-                fabs[1] = fab_alarm;
-                fabs[0] = fab_map;
-            }
+        new Handler().postDelayed(() -> {
+            fabs[1] = fab_alarm;
+            fabs[0] = fab_map;
         }, 300);
     }
     public void mapFab(View view){
@@ -248,12 +243,9 @@ public class DisplayInfoActivity extends AppCompatActivity {
 
         infoFab(view);
 
-        new Handler().postDelayed(new Runnable(){
-            @Override
-            public void run(){
-                fabs[1] = fab_alarm;
-                fabs[0] = fab_earthquake;
-            }
+        new Handler().postDelayed(() -> {
+            fabs[1] = fab_alarm;
+            fabs[0] = fab_earthquake;
         }, 300);
     }
 
@@ -311,13 +303,12 @@ public class DisplayInfoActivity extends AppCompatActivity {
                 null
         );
         target.moveToFirst();
-//        for(int j=0;j<30;j++){
-        for(int j=0;j<1;j++){
+        for(int j=0;j<30 && !target.isLast();j++){
             Log.v("hoge",j+"");
             String datetime = target.getString(1);
             String hypocenter = target.getString(2);
-            double north_lat = target.getDouble(3);
-            double east_long = target.getDouble(4);
+//            double north_lat = target.getDouble(3);
+//            double east_long = target.getDouble(4);
             int depth = target.getInt(5);
             double magnitude = target.getDouble(6);
             String max_int = target.getString(7);
@@ -340,7 +331,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
         textView_earthquake.setText(Html.fromHtml(sbuilder.toString()));
     }
     private void setFont(int h_size,StringBuilder sbuilder,String string){
-        sbuilder.append("<h" + h_size + ">"+ string + "</h" + h_size + ">");
+        sbuilder.append("<h").append(h_size).append(">").append(string).append("</h").append(h_size).append(">");
     }
 
     private void readData(String pref, String city) {
@@ -540,6 +531,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
             createGraphics();
         }
     }
+    @SuppressLint("ClickableViewAccessibility")
     private void setTouch(){
         mapView_map.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mapView_map) {
 
@@ -566,6 +558,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
             }
         });
     }
+    @SuppressLint("ClickableViewAccessibility")
     private void setTouchAlarm(){
         String[] alarmdata = new String[Prefectures.PREF_NUM];
         try{
@@ -600,6 +593,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
         }
         mapView_map.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mapView_map) {
 
+            @SuppressLint("SetTextI18n")
             @Override
             public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
                 android.graphics.Point screenPoint = new android.graphics.Point(Math.round(motionEvent.getX()), Math.round(motionEvent.getY()));
@@ -623,6 +617,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
             }
         });
     }
+    @SuppressLint("ClickableViewAccessibility")
     private void setTouchEq(){
         String[] eqdata = new String[Prefectures.PREF_NUM];
         for(int i=0; i<eqdata.length; i++) eqdata[i] = "";
@@ -661,6 +656,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
         }
         mapView_map.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mapView_map) {
 
+            @SuppressLint("SetTextI18n")
             @Override
             public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
                 android.graphics.Point screenPoint = new android.graphics.Point(Math.round(motionEvent.getX()), Math.round(motionEvent.getY()));

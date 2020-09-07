@@ -141,7 +141,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/displayInfo_map_spinner"></com.esri.arcgisruntime.mapping.view.MapView>
+            app:layout_constraintTop_toBottomOf="@+id/displayInfo_map_spinner" />
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
