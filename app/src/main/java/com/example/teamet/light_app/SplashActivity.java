@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v4.app.AppLaunchChecker;
-import android.support.v7.app.AppCompatActivity;
+//import android.support.v4.app.AppLaunchChecker;
+//import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.teamet.light_app.network.Router;
 

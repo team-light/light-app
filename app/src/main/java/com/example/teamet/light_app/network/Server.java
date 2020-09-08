@@ -3,12 +3,15 @@ package com.example.teamet.light_app.network;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.support.v4.util.Consumer;
+//import android.support.v4.util.Consumer;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.core.util.Consumer;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -59,7 +62,8 @@ public class Server extends AsyncTask<String, Void, Void> {
     public void saveJson(String data){
         try {
             Log.v("Server", "Saving JSON...");
-            PrintWriter pw = new PrintWriter("assets\\data.json", "UTF-8");
+//            PrintWriter pw = new PrintWriter("assets\\data.json", "UTF-8");
+            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(co.openFileOutput("data.json", Context.MODE_PRIVATE))));
             pw.print(data);
             pw.close();
             Log.v("Server", "Saved JSON.");
