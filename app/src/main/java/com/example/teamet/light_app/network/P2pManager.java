@@ -7,9 +7,11 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.support.v4.util.Consumer;
+//import android.support.v4.util.Consumer;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.core.util.Consumer;
 
 import java.net.InetAddress;
 import java.util.ArrayList;

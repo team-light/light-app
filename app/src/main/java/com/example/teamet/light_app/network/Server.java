@@ -3,9 +3,11 @@ package com.example.teamet.light_app.network;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.support.v4.util.Consumer;
+//import android.support.v4.util.Consumer;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.core.util.Consumer;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
