@@ -45,6 +45,7 @@ import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.example.teamet.light_app.database.DataBaseMake;
+import com.example.teamet.light_app.map.MapManager;
 import com.example.teamet.light_app.source.JsonAsyncTask;
 
 import org.json.JSONArray;
@@ -525,6 +526,8 @@ public class DisplayInfoActivity extends AppCompatActivity {
             });
         }
         if (mapView_map != null) {
+//            MapManager mapManager = new MapManager(this, mapView_map, dbm.getReadableDatabase());
+//            mapManager.setMap();
             ArcGISRuntimeEnvironment.setLicense(getResources().getString(R.string.arcgis_license_key));
             Basemap.Type basemapType = Basemap.Type.STREETS_VECTOR;
             double[] tokyo = Prefectures.GetCoodinate(Prefectures.TOKYO);
