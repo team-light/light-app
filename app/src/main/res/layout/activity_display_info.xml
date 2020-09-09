@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".DisplayInfoActivity">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/displayInfo_toolbar"
-        android:layout_width="411dp"
+        android:layout_width="0dp"
         android:layout_height="59dp"
         android:background="@color/colorPrimary"
         android:elevation="4dp"
@@ -28,7 +28,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/displayInfo_toolbar" />
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/displayInfo_alarm"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -56,32 +56,37 @@
 
         <Spinner
             android:id="@+id/displayInfo_pref_spinner"
-            android:layout_width="150dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="30dp"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="32dp"
             android:layout_marginTop="70dp"
+            android:layout_marginEnd="16dp"
             android:background="#F0F0F0"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toStartOf="@+id/displayInfo_area_spinner"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Spinner
             android:id="@+id/displayInfo_area_spinner"
-            android:layout_width="150dp"
-            android:layout_height="29dp"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="70dp"
             android:layout_marginEnd="30dp"
             android:background="#F0F0F0"
+            android:textColor="@android:color/black"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/displayInfo_pref_spinner"
             app:layout_constraintTop_toTopOf="parent" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/displayInfo_earthquake"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:onClick="fabClose"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -105,9 +110,41 @@
                 android:layout_height="wrap_content" />
         </ScrollView>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/displayInfo_map"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:onClick="fabClose"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/displayInfo_toolbar">
+
+        <Spinner
+            android:id="@+id/displayInfo_map_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#F0F0F0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.esri.arcgisruntime.mapping.view.MapView
+            android:id="@+id/displayInfo_map_mapView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/displayInfo_map_spinner" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/displayInfo_fab"
         android:layout_width="0dp"
         android:layout_height="224dp"
@@ -117,7 +154,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/displayInfo_fab_info"
             android:layout_width="56dp"
             android:layout_height="56dp"
@@ -153,7 +190,7 @@
                 android:text="@string/fab_text_alarm"
                 android:visibility="visible" />
 
-            <android.support.design.widget.FloatingActionButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -189,7 +226,7 @@
                 android:text="@string/fab_text_earthquake"
                 android:visibility="visible" />
 
-            <android.support.design.widget.FloatingActionButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -225,7 +262,7 @@
                 android:text="@string/fab_text_map"
                 android:visibility="visible" />
 
-            <android.support.design.widget.FloatingActionButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -238,6 +275,6 @@
                 app:srcCompat="@mipmap/ic_launcher_round" />
         </LinearLayout>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

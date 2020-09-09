@@ -52,8 +52,9 @@ public class Client extends AsyncTask<String, Void, String> {
     public void sendJsonFile(){
         Log.v("Client", "Sending JSON file...");
         try {
-            json = new File("assets\\data.json");
-            jsonBR = new BufferedReader(new InputStreamReader(new FileInputStream(json), "UTF-8"));
+//            json = new File("assets\\data.json");
+//            jsonBR = new BufferedReader(new InputStreamReader(new FileInputStream(json), "UTF-8"));
+            jsonBR = new BufferedReader(new InputStreamReader(context.openFileInput("data.json"), "UTF-8"));
             String str = jsonBR.readLine();//送信するjsonファイルが1行のみである前提で1行しか読み込ませない
             pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
             pw.println(str);

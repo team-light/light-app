@@ -5,14 +5,17 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+//import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+//import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
         fab_alarm = findViewById(R.id.main_menu_alarm);
@@ -52,20 +55,17 @@ public class MainActivity extends AppCompatActivity {
 
         dispInfo(intent);
     }
-
     public void pushEarthquakeFab(View view){
         Intent intent = new Intent(this, DisplayInfoActivity.class);
         intent.putExtra("info_type", "earthquake");
 
         dispInfo(intent);
     }
-
     public void pushMapFab(View view){
         Intent intent = new Intent(this, DisplayInfoActivity.class);
-        intent.putExtra("into_type", "map");
-        Toast.makeText(MainActivity.this, "未実装です", Toast.LENGTH_LONG).show();
+        intent.putExtra("info_type", "map");
 
-        //dispInfo(intent);
+        dispInfo(intent);
     }
 
     private void dispInfo(Intent intent){
@@ -126,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
 
         buttonState = ButtonState.OPEN;
     }
-
     public void fabClose(){
         animator_fabs = ObjectAnimator.ofFloat(fab_alarm, "translationY", 0);
         animator_fabs.setDuration(200);

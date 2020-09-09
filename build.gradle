@@ -19,9 +19,8 @@ allprojects {
         google()
         jcenter()
         // esri arcgis maven リポジトリの追加
-        maven {
-            url 'https://esri.bintray.com/arcgis'
-        }
+        maven { url 'https://esri.bintray.com/arcgis' }
+        maven { url 'https://maven.google.com' }
     }
 }
 

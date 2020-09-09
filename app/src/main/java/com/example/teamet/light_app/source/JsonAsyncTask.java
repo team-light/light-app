@@ -1,10 +1,9 @@
 package com.example.teamet.light_app.source;
 
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.example.teamet.light_app.DisplayInfoActivity;
 import com.example.teamet.light_app.network.Router;
 
 import java.text.SimpleDateFormat;
@@ -27,7 +26,6 @@ public class JsonAsyncTask extends AsyncTask<Void, Void, Void> {
             Calendar calendar = Calendar.getInstance();
             SimpleDateFormat sdf = new SimpleDateFormat("ss");
             int now = Integer.parseInt(sdf.format(calendar.getTime()));
-            Log.v("JAT", ""+now);
             Thread.sleep((60 - now) * 1000);
         } catch(Exception e) {
             e.printStackTrace();
