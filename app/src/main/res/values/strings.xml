@@ -5,5 +5,6 @@
     <string name="fab_text_alarm">" 警報・注意報 "</string>
     <string name="fab_text_earthquake">" 地震情報 "</string>
     <string name="fab_text_map">" 災害マップ（未）"</string>
+    <string name="fab_text_set">" 設定 "</string>
     <string name="fab_text_close">" アプリを閉じる "</string>
 </resources>

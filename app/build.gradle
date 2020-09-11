@@ -36,4 +36,5 @@ dependencies {
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.esri.arcgisruntime:arcgis-android:100.9.0'
     implementation 'org.jetbrains:annotations:15.0'
+    implementation 'androidx.mediarouter:mediarouter:1.1.0'
 }

@@ -23,6 +23,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -56,6 +57,7 @@ import java.util.Objects;
 
 public class DisplayInfoActivity extends AppCompatActivity {
     private Toolbar toolbar;
+    private ImageButton button_setmap;
 
     private ConstraintLayout layout_alarm;
     private ConstraintLayout layout_earthquake;
@@ -72,6 +74,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
     private LinearLayout fab_alarm;
     private LinearLayout fab_earthquake;
     private LinearLayout fab_map;
+    private LinearLayout fab_set;
 
     ObjectAnimator animator_fabs;
 
@@ -115,8 +118,9 @@ public class DisplayInfoActivity extends AppCompatActivity {
         fab_alarm = findViewById(R.id.displayInfo_menu_alarm);
         fab_earthquake = findViewById(R.id.displayInfo_menu_earthquake);
         fab_map = findViewById(R.id.displayInfo_menu_map);
+        fab_set = findViewById(R.id.displayInfo_menu_set);
 
-        fabs = new LinearLayout[2];
+        fabs = new LinearLayout[3];
 
         Intent intent = getIntent();
         String display =  intent.getStringExtra("info_type");
@@ -127,8 +131,10 @@ public class DisplayInfoActivity extends AppCompatActivity {
                 displayState = DisplayState.ALARM;
                 mapView_map.pause();
 
-                fabs[1] = fab_earthquake;
-                fabs[0] = fab_map;
+
+                fabs[2] = fab_earthquake;
+                fabs[1] = fab_map;
+                fabs[0] = fab_set;
 
                 break;
 
@@ -140,8 +146,9 @@ public class DisplayInfoActivity extends AppCompatActivity {
                 readEqData();
 
 
-                fabs[1] = fab_alarm;
-                fabs[0] = fab_map;
+                fabs[2] = fab_alarm;
+                fabs[1] = fab_map;
+                fabs[0] = fab_set;
 
                 break;
 
@@ -150,13 +157,14 @@ public class DisplayInfoActivity extends AppCompatActivity {
                 layout_map.setVisibility(View.VISIBLE);
                 displayState = DisplayState.MAP;
 
-                fabs[1] = fab_alarm;
-                fabs[0] = fab_earthquake;
+                fabs[2] = fab_alarm;
+                fabs[1] = fab_earthquake;
+                fabs[0] = fab_set;
 
                 break;
         }
         setSupportActionBar(toolbar);
-
+        
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -214,8 +222,9 @@ public class DisplayInfoActivity extends AppCompatActivity {
         infoFab(view);
 
         new Handler().postDelayed(() -> {
-            fabs[1] = fab_earthquake;
-            fabs[0] = fab_map;
+            fabs[2] = fab_earthquake;
+            fabs[1] = fab_map;
+            fabs[0] = fab_set;
         }, 300);
     }
     public void earthquakeFab(View view){
@@ -232,8 +241,9 @@ public class DisplayInfoActivity extends AppCompatActivity {
         infoFab(view);
 
         new Handler().postDelayed(() -> {
-            fabs[1] = fab_alarm;
-            fabs[0] = fab_map;
+            fabs[2] = fab_alarm;
+            fabs[1] = fab_map;
+            fabs[0] = fab_set;
         }, 300);
     }
     public void mapFab(View view){
@@ -249,9 +259,13 @@ public class DisplayInfoActivity extends AppCompatActivity {
         infoFab(view);
 
         new Handler().postDelayed(() -> {
-            fabs[1] = fab_alarm;
-            fabs[0] = fab_earthquake;
+            fabs[2] = fab_alarm;
+            fabs[1] = fab_earthquake;
+            fabs[0] = fab_set;
         }, 300);
+    }
+    public void setFab(View view){
+        infoFab(view);
     }
 
     private static float convertDp2Px(float dp, Context context){
@@ -292,6 +306,17 @@ public class DisplayInfoActivity extends AppCompatActivity {
         });
         animator_fabs.start();
 
+        animator_fabs = ObjectAnimator.ofFloat(fabs[2], "translationY", 0);
+        animator_fabs.setDuration(200);
+        animator_fabs.addListener(new AnimatorListenerAdapter(){
+            @Override
+            public void onAnimationEnd(Animator animator){
+                fabs[2].setVisibility(View.INVISIBLE);
+                super.onAnimationEnd(animator);
+            }
+        });
+        animator_fabs.start();
+
         buttonState = ButtonState.CLOSE;
     }
 
@@ -308,8 +333,8 @@ public class DisplayInfoActivity extends AppCompatActivity {
                 null
         );
         target.moveToFirst();
-        for(int j=0;j<30 && !target.isLast();j++){
-            Log.v("hoge",j+"");
+        for(int i=0;i<30 && i<target.getCount();i++){
+            Log.v("hoge",i+"");
             String datetime = target.getString(1);
             String hypocenter = target.getString(2);
 //            double north_lat = target.getDouble(3);
@@ -317,7 +342,31 @@ public class DisplayInfoActivity extends AppCompatActivity {
             int depth = target.getInt(5);
             double magnitude = target.getDouble(6);
             String max_int = target.getString(7);
-            String city_list = target.getString(8);
+
+            String city_list = new String();
+            try{
+                JSONArray json_city_list = new JSONArray(target.getString(8));
+                for(int j=json_city_list.length()-1; 0<j; j--){
+                    JSONObject tag_ = json_city_list.getJSONObject(j);
+                    int max_int_ = tag_.getInt("max_int");
+                    city_list += "震度"+max_int_+": <br>\t";
+                    if(0<max_int_){
+                        JSONObject prefs = tag_.getJSONObject("prefs");
+                        Iterator<String> pref_list = prefs.keys();
+                        while (pref_list.hasNext()){
+                            String pref = pref_list.next();
+                            city_list += "\t["+pref+"]<br>\t";
+                            JSONArray area = prefs.getJSONArray(pref);
+                            for(int k=0; k<area.length(); k++) city_list += area.getString(k)+" ";
+                            city_list += "<br><br>";
+                        }
+                    }
+                }
+            }catch (Exception e){
+                city_list = "読み込みエラー<br>";
+                e.printStackTrace();
+            }
+
             String message =target.getString(9);
 
             setFont(2,sbuilder,"最大震度 <big><big>"+max_int+"</big></big>　マグニチュード <big><big>"+magnitude+"</big></big>");
@@ -326,7 +375,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
             }else{
                 setFont(4, sbuilder, "発生時刻 : " + datetime + "<br>震源地　 : " + hypocenter + "<br>深さ　　 : 約"+depth/1000+"km");
             }
-            setFont(6,sbuilder,city_list.replaceAll("\n", "<br>"));
+            setFont(6,sbuilder,city_list);
             setFont(4,sbuilder,message);
             sbuilder.append("<br><br>");
 

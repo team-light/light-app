@@ -7,4 +7,5 @@
     <string name="fab_text_map">" 災害マップ（未実装）"</string>
     <string name="fab_text_setNet">"インターネット（未実装） "</string>
     <string name="fab_text_earthquake">" 地震情報 "</string>
+    <string name="fab_text_set">" 設定 "</string>
 </resources>
