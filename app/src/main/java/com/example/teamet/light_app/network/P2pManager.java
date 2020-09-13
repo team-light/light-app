@@ -28,30 +28,34 @@ public class P2pManager {
         channel = manager.initialize(context, context.getMainLooper(), null);
     }
 
-    public void discoverPeers() {
+    public void discoverPeers(Runnable then) {
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener () {
             @Override
             public void onSuccess() {
-                showToast(successMsg("discoverPeers"));
+                Log.v("P2pManager", successMsg("discoverPeers"));
+                then.run();
             }
 
             @Override
             public void onFailure(int reason) {
-                showToast(failureMsg("discoverPeers"));
+                Log.v("P2pManager", failureMsg("discoverPeers"));
+                then.run();
             }
         });
     }
 
-    public void stopPeerDiscovery() {
+    public void stopPeerDiscovery(Runnable then) {
         manager.stopPeerDiscovery(channel,  new WifiP2pManager.ActionListener () {
             @Override
             public void onSuccess() {
-                showToast(successMsg("stopPeerDiscovery"));
+                Log.v("P2pManager", successMsg("stopPeerDiscovery"));
+                then.run();
             }
 
             @Override
             public void onFailure(int reason) {
-                showToast(failureMsg("stopPeerDiscovery"));
+                Log.v("P2pManager", failureMsg("stopPeerDiscovery"));
+                then.run();
             }
         });
     }
@@ -60,27 +64,30 @@ public class P2pManager {
         manager.connect(channel, config, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
-                showToast(successMsg("Connect"));
+                Log.v("P2pManager", successMsg("Connect"));
                 then.run();
             }
 
             @Override
             public void onFailure(int reason) {
-                showToast(failureMsg("Connect"));
+                Log.v("P2pManager", failureMsg("Connect"));
+                then.run();
             }
         } );
     }
 
-    public void disconnectAll() {
+    public void disconnectAll(final Runnable then) {
         manager.removeGroup(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
-                showToast(successMsg("disconnectAll"));
+                Log.v("P2pManager", successMsg("disconnectAll"));
+                then.run();
             }
 
             @Override
             public void onFailure(int i) {
-                showToast(failureMsg("disconnectAll"));
+                Log.v("P2pManager", failureMsg("disconnectAll"));
+                then.run();
             }
         });
     }
@@ -89,7 +96,7 @@ public class P2pManager {
         manager.requestPeers(channel, new WifiP2pManager.PeerListListener() {
             @Override
             public void onPeersAvailable(WifiP2pDeviceList peers) {
-                showToast(successMsg("requestPeers"));
+                Log.v("P2pManager", successMsg("requestPeers"));
                 final List<WifiP2pDevice> ps = new ArrayList<>(peers.getDeviceList());
                 peerListListener.accept(ps);
             }
@@ -112,10 +119,6 @@ public class P2pManager {
                 })).start();
             }
         });
-    }
-
-    private void showToast(String text) {
-        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
     // エラーメッセージ生成

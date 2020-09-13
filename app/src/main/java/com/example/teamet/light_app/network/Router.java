@@ -13,6 +13,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.Consumer;
 import android.util.Log;
+import android.util.Pair;
 
 import com.example.teamet.light_app.R;
 import com.example.teamet.light_app.database.DataBaseMake;
@@ -30,14 +31,17 @@ import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 import static java.lang.Double.NaN;
 
 public class Router extends Service {
     public static final int PORT = 4567;
-    private final double PERIOD_SEC = 10.0;
+    private final double PERIOD_SEC = 30.0;
     public final int BUF_SIZE = 1024;
 
     public static final byte METHOD_GET = 0x00;
@@ -68,69 +72,66 @@ public class Router extends Service {
         startForeground(startId, notification);
 
         pm = new P2pManager(this);
-        pm.discoverPeers();
-
         server = new Server(Router.this, pm);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    Log.v("Router", "Start period.");
+        new Thread(() -> {
+            AtomicBoolean completed = new AtomicBoolean();
 
-                    refreshConnection();
-                    server.logStatistics();
+            while (true) {
+                Log.v("Router", "Start period.");
 
-                    pm.requestIsGroupOwner(new Consumer<Boolean>() {
-                        @Override
-                        public void accept(Boolean isGroupOwner) {
+                pm.discoverPeers(() -> {
+                    refreshConnection(() -> {
+                        server.logStatistics();
+
+                        pm.requestIsGroupOwner(isGroupOwner -> {
                             if (isGroupOwner) {
                                 server.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                                 Log.v("Router", "Group-owner is me.");
-                            }
-                            else {
+                            } else {
                                 server.stop();
 
-                                pm.requestIPAddr(new Consumer<InetAddress>() {
-                                    @Override
-                                    public void accept(InetAddress inetAddress) {
-                                        if (inetAddress == null) {
-                                            Log.v("Router", "Failed fetching Group-owner IP address.");
-                                            return;
-                                        }
+                                pm.requestIPAddr(inetAddress -> {
+                                    if (inetAddress == null) {
+                                        Log.v("Router", "Failed fetching Group-owner IP address.");
+                                        return;
+                                    }
 
-                                        try {
-                                            Socket sc = new Socket(inetAddress, PORT);
-                                            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
-                                            BufferedReader br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
+                                    try {
+                                        Socket sc = new Socket(inetAddress, PORT);
+                                        PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
+                                        BufferedReader br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
 
-                                            pw.print(METHOD_GET);
-                                            pw.flush();
-                                            Log.v("Router", String.format("Sent GET request to group-owner [%s:%d].", inetAddress.toString(), PORT));
+                                        pw.print(METHOD_GET);
+                                        pw.flush();
+                                        Log.v("Router", String.format("Sent GET request to group-owner [%s:%d].", inetAddress.toString(), PORT));
 
-                                            String json = recv(br, buf);
-                                            saveJson(json);
-                                            Log.v("Router", String.format("Received json from group-owner [%s:%d] and saved.", inetAddress.toString(), PORT));
+                                        String json = recv(br, buf);
+                                        saveJson(json);
+                                        Log.v("Router", String.format("Received json from group-owner [%s:%d] and saved.", inetAddress.toString(), PORT));
 
-                                            sc.close();
-
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
+                                        sc.close();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    } finally {
+                                        completed.set(true);
                                     }
                                 });
                             }
+                        });
+
+                        try {
+                            Thread.sleep((long) (PERIOD_SEC * 1000));
+                            while (!completed.get()) {
+                                Thread.sleep(1000);
+                            }
+                        } catch (InterruptedException e) {
+                            Log.v("Router", "Interrupted.");
+                            e.printStackTrace();
+                            return;
                         }
                     });
-
-                    try {
-                        Thread.sleep((long) (PERIOD_SEC * 1000));
-                    } catch (InterruptedException e) {
-                        Log.v("Router", "Interrupted.");
-                        e.printStackTrace();
-                        return;
-                    }
-                }
+                });
             }
         }).start();
 
@@ -231,25 +232,23 @@ public class Router extends Service {
     }
 
 
-    public void refreshConnection() {
+    public void refreshConnection(Runnable continuation) {
+        class LoopState {
+            double minLoad;
+            WifiP2pConfig minLoadConfig;
+        };
+
         pm.requestPeers(wifiP2pDevices -> {
-            ArrayList<Double> minLoad = new ArrayList<>();
-            minLoad.add(NaN);
+            LoopState initial = new LoopState();
+            initial.minLoad = NaN;
+            initial.minLoadConfig = null;
 
-            ArrayList<WifiP2pConfig> minLoadConfig = new ArrayList<>();
-            minLoadConfig.add(null);
+            foldAsync(wifiP2pDevices.iterator(), initial, arg -> {
+                WifiP2pDevice dev = arg.first.first;
+                LoopState state = arg.first.second;
+                Consumer<LoopState> loopContinuation = arg.second;
 
-            ArrayList<ArrayList<WifiP2pConfig>> ownerConfigs = new ArrayList<>();
-            ownerConfigs.add(new ArrayList<>());
-
-
-            ArrayList<Boolean> fetchLoadCompleted = new ArrayList<>();
-            fetchLoadCompleted.add(false);
-
-            for (WifiP2pDevice dev : wifiP2pDevices) {
                 Log.v("Router", "device found: " + dev.deviceAddress);
-
-                fetchLoadCompleted.set(0, true);
 
                 WifiP2pConfig config = new WifiP2pConfig();
                 config.deviceAddress = dev.deviceAddress;
@@ -264,8 +263,7 @@ public class Router extends Service {
                     pm.requestIsGroupOwner(isOwner -> {
                         if (isOwner) {
                             Log.v("Router", "owner is me");
-                            ownerConfigs.get(0).add(config);
-                            fetchLoadCompleted.set(0, true);
+                            // todo
                             return;
                         }
                         pm.requestIPAddr(inetAddress -> {
@@ -275,36 +273,39 @@ public class Router extends Service {
                                 sendData(sc, "", METHOD_POLL_LOAD);
                                 String recved = recv(new BufferedReader(new InputStreamReader(sc.getInputStream())), buf);
                                 double load = Double.parseDouble(recved);
-                                if (load < minLoad.get(0)) {
-                                    minLoad.set(0, load);
-                                    minLoadConfig.set(0, config);
+                                if (load < state.minLoad) {
+                                    state.minLoad = load;
+                                    state.minLoadConfig = config;
                                 }
                                 Log.v("Router", "received load.");
                                 Log.v("refreshConnection", dev.deviceAddress + ": " + recved);
                             } catch (IOException e) {
                                 e.printStackTrace();
-                            } finally {
-                                fetchLoadCompleted.set(0, true);
+                            }
+                            finally {
+                                loopContinuation.accept(state);
                             }
                         });
                     });
                 });
-
-                while (!fetchLoadCompleted.get(0));
+            }, state -> {
                 Log.v("Router", "fetch completed");
-
-                pm.disconnectAll();
-            }
-
-            if (!ownerConfigs.get(0).isEmpty() && server.calcLoad() < minLoad.get(0)) {
-                pm.connect(ownerConfigs.get(0).get(0), ()->{});
-            }
-            else if (minLoadConfig.get(0) != null) {
-                pm.connect(minLoadConfig.get(0), ()->{});
-            }
-            else if (!ownerConfigs.get(0).isEmpty()) {
-                pm.connect(ownerConfigs.get(0).get(0), ()->{});
-            }
+                pm.disconnectAll(() -> {
+                    if (state.minLoadConfig != null) {
+                        pm.connect(state.minLoadConfig, continuation);
+                    }
+                });
+            });
         });
+    }
+
+    <T,State> void foldAsync(Iterator<T> iter, State initial, Consumer<Pair<Pair<T,State>,Consumer<State>>> f, Consumer<State> continuation) {
+        if (!iter.hasNext()) {
+            continuation.accept(initial);
+            return;
+        }
+
+        T x = iter.next();
+        f.accept(Pair.create(Pair.create(x, initial), s -> foldAsync(iter, s, f, continuation)));
     }
 }
