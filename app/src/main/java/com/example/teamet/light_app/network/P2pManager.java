@@ -56,11 +56,12 @@ public class P2pManager {
         });
     }
 
-    public void connect(WifiP2pConfig config) {
+    public void connect(WifiP2pConfig config, final Runnable then) {
         manager.connect(channel, config, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
                 showToast(successMsg("Connect"));
+                then.run();
             }
 
             @Override
@@ -68,6 +69,20 @@ public class P2pManager {
                 showToast(failureMsg("Connect"));
             }
         } );
+    }
+
+    public void disconnectAll() {
+        manager.removeGroup(channel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                showToast(successMsg("disconnectAll"));
+            }
+
+            @Override
+            public void onFailure(int i) {
+                showToast(failureMsg("disconnectAll"));
+            }
+        });
     }
 
    public void requestPeers(final Consumer<List<WifiP2pDevice>> peerListListener) {
@@ -114,20 +129,17 @@ public class P2pManager {
     }
 
     public void requestIsGroupOwner(final Consumer<Boolean> consumer) {
-        manager.requestGroupInfo(channel, new WifiP2pManager.GroupInfoListener() {
-            @Override
-            public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
-                if (wifiP2pGroup == null) {
-                    Log.v("P2pManager", "wifiP2pGroup == null");
-                }
-                else {
-                    (new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            consumer.accept(wifiP2pGroup.isGroupOwner());
-                        }
-                    })).start();
-                }
+        manager.requestGroupInfo(channel, wifiP2pGroup -> {
+            if (wifiP2pGroup == null) {
+                Log.v("P2pManager", "wifiP2pGroup == null");
+            }
+            else {
+                (new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        consumer.accept(wifiP2pGroup.isGroupOwner());
+                    }
+                })).start();
             }
         });
     }

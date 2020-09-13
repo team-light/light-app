@@ -3,9 +3,13 @@ package com.example.teamet.light_app.network;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.util.Consumer;
 import android.util.Log;
@@ -22,8 +26,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static java.lang.Double.NaN;
 
 public class Router extends Service {
     public static final int PORT = 4567;
@@ -32,6 +42,7 @@ public class Router extends Service {
 
     public static final byte METHOD_GET = 0x00;
     public static final byte METHOD_POST = 0x01;
+    public static final byte METHOD_POLL_LOAD = 0x02;
 
     private P2pManager pm = null;
     private Server server;
@@ -57,16 +68,9 @@ public class Router extends Service {
         startForeground(startId, notification);
 
         pm = new P2pManager(this);
+        pm.discoverPeers();
 
-        pm.requestIsGroupOwner(new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean isGroupOwner) {
-                if (isGroupOwner) {
-                    server = new Server(Router.this, pm);
-                    server.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                }
-            }
-        });
+        server = new Server(Router.this, pm);
 
         new Thread(new Runnable() {
             @Override
@@ -74,13 +78,19 @@ public class Router extends Service {
                 while (true) {
                     Log.v("Router", "Start period.");
 
+                    refreshConnection();
+                    server.logStatistics();
+
                     pm.requestIsGroupOwner(new Consumer<Boolean>() {
                         @Override
                         public void accept(Boolean isGroupOwner) {
                             if (isGroupOwner) {
+                                server.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                                 Log.v("Router", "Group-owner is me.");
                             }
                             else {
+                                server.stop();
+
                                 pm.requestIPAddr(new Consumer<InetAddress>() {
                                     @Override
                                     public void accept(InetAddress inetAddress) {
@@ -190,6 +200,22 @@ public class Router extends Service {
         }
     }
 
+    public static void sendData(Socket sc, String data, Byte method) {
+        Log.v("Router", "Sending data...");
+
+        try {
+            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
+            if (method != null) {
+                pw.print(method);
+            }
+            pw.println(data);
+            pw.flush();
+        } catch(IOException e) {
+            Log.v("Router", e.toString());
+            e.printStackTrace();
+        }
+    }
+
     public static String recv(BufferedReader br, char[] buf) throws IOException {
         int lenRecved;
         StringBuilder sb = new StringBuilder();
@@ -204,4 +230,81 @@ public class Router extends Service {
         return sb.toString();
     }
 
+
+    public void refreshConnection() {
+        pm.requestPeers(wifiP2pDevices -> {
+            ArrayList<Double> minLoad = new ArrayList<>();
+            minLoad.add(NaN);
+
+            ArrayList<WifiP2pConfig> minLoadConfig = new ArrayList<>();
+            minLoadConfig.add(null);
+
+            ArrayList<ArrayList<WifiP2pConfig>> ownerConfigs = new ArrayList<>();
+            ownerConfigs.add(new ArrayList<>());
+
+
+            ArrayList<Boolean> fetchLoadCompleted = new ArrayList<>();
+            fetchLoadCompleted.add(false);
+
+            for (WifiP2pDevice dev : wifiP2pDevices) {
+                Log.v("Router", "device found: " + dev.deviceAddress);
+
+                fetchLoadCompleted.set(0, true);
+
+                WifiP2pConfig config = new WifiP2pConfig();
+                config.deviceAddress = dev.deviceAddress;
+                Log.v("Router", "connecting...");
+                pm.connect(config, () -> {
+                    Log.v("Router", "connected.");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    pm.requestIsGroupOwner(isOwner -> {
+                        if (isOwner) {
+                            Log.v("Router", "owner is me");
+                            ownerConfigs.get(0).add(config);
+                            fetchLoadCompleted.set(0, true);
+                            return;
+                        }
+                        pm.requestIPAddr(inetAddress -> {
+                            try {
+                                Log.v("Router", "polling load...");
+                                Socket sc = new Socket(inetAddress, PORT);
+                                sendData(sc, "", METHOD_POLL_LOAD);
+                                String recved = recv(new BufferedReader(new InputStreamReader(sc.getInputStream())), buf);
+                                double load = Double.parseDouble(recved);
+                                if (load < minLoad.get(0)) {
+                                    minLoad.set(0, load);
+                                    minLoadConfig.set(0, config);
+                                }
+                                Log.v("Router", "received load.");
+                                Log.v("refreshConnection", dev.deviceAddress + ": " + recved);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } finally {
+                                fetchLoadCompleted.set(0, true);
+                            }
+                        });
+                    });
+                });
+
+                while (!fetchLoadCompleted.get(0));
+                Log.v("Router", "fetch completed");
+
+                pm.disconnectAll();
+            }
+
+            if (!ownerConfigs.get(0).isEmpty() && server.calcLoad() < minLoad.get(0)) {
+                pm.connect(ownerConfigs.get(0).get(0), ()->{});
+            }
+            else if (minLoadConfig.get(0) != null) {
+                pm.connect(minLoadConfig.get(0), ()->{});
+            }
+            else if (!ownerConfigs.get(0).isEmpty()) {
+                pm.connect(ownerConfigs.get(0).get(0), ()->{});
+            }
+        });
+    }
 }
