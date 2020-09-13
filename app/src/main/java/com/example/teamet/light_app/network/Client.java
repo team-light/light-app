@@ -54,7 +54,7 @@ public class Client extends AsyncTask<String, Void, String> {
         PORT = Integer.parseInt(port);
         try {
             sc = new Socket(HOST, PORT);
-            Router.sendJsonFile(sc, true);
+            Router.sendJsonFile(sc, true, context);
         }catch (UnknownHostException e){
             //toast = Toast.makeText(context, "ホストが特定できませんでした", duration);
             //toast.show();

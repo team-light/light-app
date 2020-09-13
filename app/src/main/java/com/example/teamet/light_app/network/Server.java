@@ -101,13 +101,13 @@ public class Server extends AsyncTask<String, Void, Void> {
                         case Router.METHOD_POST:
                             Log.v("Server", "Received POST request.");
                             prevRequestedTime = System.currentTimeMillis();
-                            Router.saveJson(text);
+                            Router.saveJson(text, co);
                             break;
 
                         case Router.METHOD_GET:
                             Log.v("Server", "Received GET request.");
                             prevRequestedTime = System.currentTimeMillis();
-                            Router.sendJsonFile(sc, false);
+                            Router.sendJsonFile(sc, false, co);
                             break;
 
                         case Router.METHOD_POLL_LOAD:
@@ -116,7 +116,7 @@ public class Server extends AsyncTask<String, Void, Void> {
                             break;
 
                         default:
-                            Log.v("Server", "Received unknown method request.");
+                            Log.v("Server", "Received unknown method request: " + method);
                     }
 
                     if (!clients.contains(sc.getInetAddress())) {
@@ -136,6 +136,6 @@ public class Server extends AsyncTask<String, Void, Void> {
     }
 
     double calcLoad() {
-        return 1.0 / (System.currentTimeMillis() - prevRequestedTime);
+        return 1000.0 / (System.currentTimeMillis() - prevRequestedTime);
     }
 }

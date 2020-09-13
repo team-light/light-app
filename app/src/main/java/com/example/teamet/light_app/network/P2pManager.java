@@ -60,18 +60,18 @@ public class P2pManager {
         });
     }
 
-    public void connect(WifiP2pConfig config, final Runnable then) {
+    public void connect(WifiP2pConfig config, Consumer<Boolean> then) {
         manager.connect(channel, config, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
                 Log.v("P2pManager", successMsg("Connect"));
-                then.run();
+                then.accept(true);
             }
 
             @Override
             public void onFailure(int reason) {
                 Log.v("P2pManager", failureMsg("Connect"));
-                then.run();
+                then.accept(false);
             }
         } );
     }
@@ -81,7 +81,7 @@ public class P2pManager {
             @Override
             public void onSuccess() {
                 Log.v("P2pManager", successMsg("disconnectAll"));
-                then.run();
+                discoverPeers(then);
             }
 
             @Override
@@ -135,6 +135,7 @@ public class P2pManager {
         manager.requestGroupInfo(channel, wifiP2pGroup -> {
             if (wifiP2pGroup == null) {
                 Log.v("P2pManager", "wifiP2pGroup == null");
+                consumer.accept(null);
             }
             else {
                 (new Thread(new Runnable() {
