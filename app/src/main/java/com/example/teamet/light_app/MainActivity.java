@@ -12,7 +12,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -44,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         fabs[1] = fab_earthquake;
         fabs[2] = fab_map;
 
-        fab_net = findViewById(R.id.main_menu_net);
+        fab_net = findViewById(R.id.main_menu_set);
         fab_close = findViewById(R.id.main_menu_close);
     }
 
@@ -72,11 +71,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    //    インターネットに接続
-    public void conNet(View view){
-        Log.v("Function", "conNet");
-
-        Toast.makeText(MainActivity.this, "未実装です", Toast.LENGTH_LONG).show();
+//    設定
+    public void settingFab(View view){
+        Log.v("Function", "setFab");
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 
 //    アプリの終了
@@ -89,9 +88,7 @@ public class MainActivity extends AppCompatActivity {
         OPEN,
         CLOSE
     }
-
     private ButtonState buttonState = ButtonState.CLOSE;
-
     public void infoFab(View view){
         Log.v("button", "infoFab");
         int iconWhile = (int) convertDp2Px(56, this.getApplicationContext());

@@ -1,4 +1,4 @@
-package com.example.teamet.light_app;
+package com.example.teamet.light_app.map;
 
 import android.util.Log;
 
@@ -7,57 +7,57 @@ import com.esri.arcgisruntime.geometry.SpatialReferences;
 
 public class Prefectures {
 
-    public static int PREF_NUM = 47;
+    public static final int PREF_NUM = 47;
 
-    public static int HOKKAIDO = 0;
-    public static int AOMORI = 1;
-    public static int IWATE = 2;
-    public static int MIYAGI = 3;
-    public static int AKITA = 4;
-    public static int YAMAGATA = 5;
-    public static int FUKUSHIMA = 6;
-    public static int IBARAKI = 7;
-    public static int TOCHIGI = 8;
-    public static int GUNMA = 9;
-    public static int SAITAMA = 10;
-    public static int CHIBA = 11;
-    public static int TOKYO = 12;
-    public static int KANAGAWA = 13;
-    public static int NIIGATA = 14;
-    public static int TOYAMA = 15;
-    public static int ISHIKAWA = 16;
-    public static int FUKUI = 17;
-    public static int YAMANASHI = 18;
-    public static int NAGANO = 19;
-    public static int GIFU = 20;
-    public static int SHIZUOKA = 21;
-    public static int AICHI = 22;
-    public static int MIE = 23;
-    public static int SHIGA = 24;
-    public static int KYOTO = 25;
-    public static int OSAKA = 26;
-    public static int HYOGO = 27;
-    public static int NARA = 28;
-    public static int WAKAYAMA = 29;
-    public static int TOTTORI = 30;
-    public static int SHIMANE = 31;
-    public static int OKAYAMA = 32;
-    public static int HIROSHIMA = 33;
-    public static int YAMAGUCHI = 34;
-    public static int TOKUSHIMA = 35;
-    public static int KAGAWA = 36;
-    public static int EHIME = 37;
-    public static int KOCHI = 38;
-    public static int FUKUOKA = 39;
-    public static int SAGA = 40;
-    public static int NAGASAKI = 41;
-    public static int KUMAMOTO = 42;
-    public static int OITA = 43;
-    public static int MIYAZAKI = 44;
-    public static int KAGOSHIMA = 45;
-    public static int OKINAWA = 46;
+    public static final int HOKKAIDO = 0;
+    public static final int AOMORI = 1;
+    public static final int IWATE = 2;
+    public static final int MIYAGI = 3;
+    public static final int AKITA = 4;
+    public static final int YAMAGATA = 5;
+    public static final int FUKUSHIMA = 6;
+    public static final int IBARAKI = 7;
+    public static final int TOCHIGI = 8;
+    public static final int GUNMA = 9;
+    public static final int SAITAMA = 10;
+    public static final int CHIBA = 11;
+    public static final int TOKYO = 12;
+    public static final int KANAGAWA = 13;
+    public static final int NIIGATA = 14;
+    public static final int TOYAMA = 15;
+    public static final int ISHIKAWA = 16;
+    public static final int FUKUI = 17;
+    public static final int YAMANASHI = 18;
+    public static final int NAGANO = 19;
+    public static final int GIFU = 20;
+    public static final int SHIZUOKA = 21;
+    public static final int AICHI = 22;
+    public static final int MIE = 23;
+    public static final int SHIGA = 24;
+    public static final int KYOTO = 25;
+    public static final int OSAKA = 26;
+    public static final int HYOGO = 27;
+    public static final int NARA = 28;
+    public static final int WAKAYAMA = 29;
+    public static final int TOTTORI = 30;
+    public static final int SHIMANE = 31;
+    public static final int OKAYAMA = 32;
+    public static final int HIROSHIMA = 33;
+    public static final int YAMAGUCHI = 34;
+    public static final int TOKUSHIMA = 35;
+    public static final int KAGAWA = 36;
+    public static final int EHIME = 37;
+    public static final int KOCHI = 38;
+    public static final int FUKUOKA = 39;
+    public static final int SAGA = 40;
+    public static final int NAGASAKI = 41;
+    public static final int KUMAMOTO = 42;
+    public static final int OITA = 43;
+    public static final int MIYAZAKI = 44;
+    public static final int KAGOSHIMA = 45;
+    public static final int OKINAWA = 46;
 
-    public static String[] Pref = {
+    public static final String[] Pref = {
             "北海道",
             "青森県",
             "岩手県",
@@ -108,7 +108,7 @@ public class Prefectures {
     };
 
     // 各都道府県の座標（緯度，経度）
-    private static double[][] coordinates = {
+    private static final double[][] coordinates = {
             {43.06417, 141.34694},	// 北海道
             {40.82444, 140.74},	    // 青森県
             {39.70361, 141.1525},	// 岩手県
@@ -158,15 +158,15 @@ public class Prefectures {
             {26.2125, 127.68111},	// 沖縄県
     };
 
-    static double[] GetCoodinate(int pref){
+    public static double[] GetCoodinate(int pref){
         return coordinates[pref].clone();
     }
 
-    static Point GetPoint(int pref){
+    public static Point GetPoint(int pref){
         return new Point(coordinates[pref][1], coordinates[pref][0], SpatialReferences.getWgs84());
     }
 
-    static int GetNearPref(double lat, double lon){
+    public static int GetNearPref(double lat, double lon){
         int pref=0;
         double dist, dist_min;
         dist_min = (coordinates[pref][0]-lat)*(coordinates[pref][0]-lat)+(coordinates[pref][1]-lon)*(coordinates[pref][1]-lon);
@@ -181,7 +181,7 @@ public class Prefectures {
         return pref;
     }
 
-    static int GetIndex(String pref){
+    public static int GetIndex(String pref){
         for(int i=0; i<PREF_NUM; i++){
             if (pref.equals(Pref[i])) return i;
         }

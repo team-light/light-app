@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.os.Handler;
 //import android.support.constraint.ConstraintLayout;
 //import android.support.v7.app.AppCompatActivity;
@@ -18,12 +17,9 @@ import android.os.Bundle;
 import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -32,22 +28,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
-import com.esri.arcgisruntime.geometry.GeometryEngine;
-import com.esri.arcgisruntime.geometry.Point;
-import com.esri.arcgisruntime.geometry.SpatialReferences;
-import com.esri.arcgisruntime.mapping.ArcGISMap;
-import com.esri.arcgisruntime.mapping.Basemap;
-import com.esri.arcgisruntime.mapping.view.Callout;
-import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
-import com.esri.arcgisruntime.mapping.view.Graphic;
-import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.MapView;
-import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
-import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.example.teamet.light_app.database.DataBaseMake;
 import com.example.teamet.light_app.map.MapManager;
-import com.example.teamet.light_app.source.JsonAsyncTask;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -57,7 +40,6 @@ import java.util.Objects;
 
 public class DisplayInfoActivity extends AppCompatActivity {
     private Toolbar toolbar;
-    private ImageButton button_setmap;
 
     private ConstraintLayout layout_alarm;
     private ConstraintLayout layout_earthquake;
@@ -90,9 +72,6 @@ public class DisplayInfoActivity extends AppCompatActivity {
 
     private DisplayState displayState;
     private ButtonState buttonState = ButtonState.CLOSE;
-
-    private GraphicsOverlay mGraphicsOverlay;
-    private Callout mCallout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,6 +148,8 @@ public class DisplayInfoActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
 
         setPrefSpinner();
+
+        Log.v("DisplayInofActivity", "onCreate");
     }
 
     @Override
@@ -187,15 +168,14 @@ public class DisplayInfoActivity extends AppCompatActivity {
     }
     @Override
     protected void onDestroy() {
-        if (mapView_map != null) {
-            mapView_map.dispose();
-        }
+//        if (mapView_map != null) {
+//            mapView_map.dispose();
+//        }
         super.onDestroy();
     }
-
+    @Override
     public boolean onSupportNavigateUp(){
         finish();
-
         return super.onSupportNavigateUp();
     }
 
@@ -266,6 +246,8 @@ public class DisplayInfoActivity extends AppCompatActivity {
     }
     public void setFab(View view){
         infoFab(view);
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 
     private static float convertDp2Px(float dp, Context context){
@@ -343,27 +325,27 @@ public class DisplayInfoActivity extends AppCompatActivity {
             double magnitude = target.getDouble(6);
             String max_int = target.getString(7);
 
-            String city_list = new String();
+            StringBuilder city_list = new StringBuilder();
             try{
                 JSONArray json_city_list = new JSONArray(target.getString(8));
-                for(int j=json_city_list.length()-1; 0<j; j--){
+                for(int j = json_city_list.length()-1; 0<j; j--){
                     JSONObject tag_ = json_city_list.getJSONObject(j);
                     int max_int_ = tag_.getInt("max_int");
-                    city_list += "震度"+max_int_+": <br>\t";
+                    city_list.append("震度").append(max_int_).append(": <br>\t");
                     if(0<max_int_){
                         JSONObject prefs = tag_.getJSONObject("prefs");
                         Iterator<String> pref_list = prefs.keys();
                         while (pref_list.hasNext()){
                             String pref = pref_list.next();
-                            city_list += "\t["+pref+"]<br>\t";
+                            city_list.append("\t[").append(pref).append("]<br>\t");
                             JSONArray area = prefs.getJSONArray(pref);
-                            for(int k=0; k<area.length(); k++) city_list += area.getString(k)+" ";
-                            city_list += "<br><br>";
+                            for(int k=0; k<area.length(); k++) city_list.append(area.getString(k)).append(" ");
+                            city_list.append("<br><br>");
                         }
                     }
                 }
             }catch (Exception e){
-                city_list = "読み込みエラー<br>";
+                city_list.append("読み込みエラー<br>");
                 e.printStackTrace();
             }
 
@@ -375,7 +357,7 @@ public class DisplayInfoActivity extends AppCompatActivity {
             }else{
                 setFont(4, sbuilder, "発生時刻 : " + datetime + "<br>震源地　 : " + hypocenter + "<br>深さ　　 : 約"+depth/1000+"km");
             }
-            setFont(6,sbuilder,city_list);
+            setFont(6,sbuilder,city_list.toString());
             setFont(4,sbuilder,message);
             sbuilder.append("<br><br>");
 
@@ -549,207 +531,31 @@ public class DisplayInfoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        if(mapSpinner != null){
-            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.spinner_array, R.layout.support_simple_spinner_dropdown_item);
-            mapSpinner.setAdapter(adapter);
-            mapSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String tag = (String)mapSpinner.getSelectedItem();
-                    switch (tag){
-                        case "ピンなし":
-                            setTouch();
-                            break;
-                        case "警報情報":
-                            setTouchAlarm();
-                            break;
-                        case "地震情報":
-                            setTouchEq();
-                            break;
-                    }
-                }
+        MapManager mapManager = new MapManager(this, mapView_map, dbm.getReadableDatabase());
+        mapManager.setMap();
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.displayInfo_spinner_map, R.layout.support_simple_spinner_dropdown_item);
+        mapSpinner.setAdapter(adapter);
+        mapSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String tag = (String)mapSpinner.getSelectedItem();
+                switch (tag){
+                    case "ピンなし":
+                        mapManager.setTouch();
+                        break;
+                    case "警報情報":
+                        mapManager.setTouchAlarm();
+                        break;
+                    case "地震情報":
+                        mapManager.setTouchEq();
+                        break;
                 }
-            });
-        }
-        if (mapView_map != null) {
-//            MapManager mapManager = new MapManager(this, mapView_map, dbm.getReadableDatabase());
-//            mapManager.setMap();
-            ArcGISRuntimeEnvironment.setLicense(getResources().getString(R.string.arcgis_license_key));
-            Basemap.Type basemapType = Basemap.Type.STREETS_VECTOR;
-            double[] tokyo = Prefectures.GetCoodinate(Prefectures.TOKYO);
-            int levelOfDetail = 8;
-            ArcGISMap map = new ArcGISMap(basemapType, tokyo[0], tokyo[1], levelOfDetail);
-            mapView_map.setMap(map);
-
-            createGraphics();
-        }
-    }
-    @SuppressLint("ClickableViewAccessibility")
-    private void setTouch(){
-        mapView_map.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mapView_map) {
+            }
 
             @Override
-            public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
-                android.graphics.Point screenPoint = new android.graphics.Point(Math.round(motionEvent.getX()), Math.round(motionEvent.getY()));
-                Point mapPoint = mapView_map.screenToLocation(screenPoint);
-                Point wgs84Point = (Point) GeometryEngine.project(mapPoint, SpatialReferences.getWgs84());
-                TextView calloutContent = new TextView(getApplicationContext());
-                calloutContent.setTextColor(Color.BLACK);
-
-                int pref = Prefectures.GetNearPref(wgs84Point.getY(), wgs84Point.getX());
-                calloutContent.setText(Prefectures.Pref[pref]);
-                Point prefPoint = Prefectures.GetPoint(pref);
-
-                mCallout = mapView_map.getCallout();
-                mCallout.setLocation(prefPoint);
-                mCallout.setContent(calloutContent);
-                mCallout.show();
-
-                mapView_map.setViewpointCenterAsync(prefPoint);
-
-                return true;
+            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-    }
-    @SuppressLint("ClickableViewAccessibility")
-    private void setTouchAlarm(){
-        String[] alarmdata = new String[Prefectures.PREF_NUM];
-        try{
-            SQLiteDatabase db = dbm.getReadableDatabase();
-            for(int i=0; i<alarmdata.length; i++){
-                Cursor target = db.query(
-                        "alert_view",
-                        null,
-                        "pref_name=?",
-                        new String[] {Prefectures.Pref[i]},
-                        null,
-                        null,
-                        null
-                );
-                target.moveToFirst();
-                alarmdata[i] = "";
-                Log.v("setTouchAlarm", Prefectures.Pref[i]+" "+target.getCount());
-                for(int j=target.getCount(); 0<j; j--) {
-                    String time = target.getString(0);
-                    String area = target.getString(2);
-                    String alarm = target.getString(3);
-                    if(alarm.contains("警報")){
-                        alarmdata[i] += time+" "+area+" "+alarm+"\n";
-                        Log.v("setTouchAlarm", ">>"+ time+" "+area+" "+alarm);
-                    }
-                    target.moveToNext();
-                }
-                target.close();
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        mapView_map.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mapView_map) {
-
-            @SuppressLint("SetTextI18n")
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
-                android.graphics.Point screenPoint = new android.graphics.Point(Math.round(motionEvent.getX()), Math.round(motionEvent.getY()));
-                Point mapPoint = mapView_map.screenToLocation(screenPoint);
-                Point wgs84Point = (Point) GeometryEngine.project(mapPoint, SpatialReferences.getWgs84());
-                TextView calloutContent = new TextView(getApplicationContext());
-                calloutContent.setTextColor(Color.BLACK);
-
-                int pref = Prefectures.GetNearPref(wgs84Point.getY(), wgs84Point.getX());
-                calloutContent.setText(Prefectures.Pref[pref]+"\n"+alarmdata[pref]);
-                Point prefPoint = Prefectures.GetPoint(pref);
-
-                mCallout = mapView_map.getCallout();
-                mCallout.setLocation(prefPoint);
-                mCallout.setContent(calloutContent);
-                mCallout.show();
-
-                mapView_map.setViewpointCenterAsync(prefPoint);
-
-                return true;
-            }
-        });
-    }
-    @SuppressLint("ClickableViewAccessibility")
-    private void setTouchEq(){
-        String[] eqdata = new String[Prefectures.PREF_NUM];
-        for(int i=0; i<eqdata.length; i++) eqdata[i] = "";
-        try{
-            SQLiteDatabase db = dbm.getReadableDatabase();
-            Cursor target = db.query(
-                    "eq_info",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-            );
-            target.moveToFirst();
-            JSONArray city_list = new JSONArray(target.getString(8));
-            target.close();
-            for(int i=city_list.length()-1; 0<i; i--){
-                JSONObject tag_ = city_list.getJSONObject(i);
-                int max_int = tag_.getInt("max_int");
-                if(0<max_int){
-                    JSONObject prefs = tag_.getJSONObject("prefs");
-                    Iterator<String> pref_list = prefs.keys();
-                    while (pref_list.hasNext()){
-                        String pref = pref_list.next();
-                        int pref_index = Prefectures.GetIndex(pref);
-                        eqdata[pref_index] += "震度："+max_int+"\n";
-                        JSONArray area = prefs.getJSONArray(pref);
-                        for(int j=0; j<area.length(); j++) eqdata[pref_index] += area.getString(j)+", ";
-                        eqdata[pref_index] += "\n";
-                    }
-                }
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        mapView_map.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mapView_map) {
-
-            @SuppressLint("SetTextI18n")
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
-                android.graphics.Point screenPoint = new android.graphics.Point(Math.round(motionEvent.getX()), Math.round(motionEvent.getY()));
-                Point mapPoint = mapView_map.screenToLocation(screenPoint);
-                Point wgs84Point = (Point) GeometryEngine.project(mapPoint, SpatialReferences.getWgs84());
-                TextView calloutContent = new TextView(getApplicationContext());
-                calloutContent.setTextColor(Color.BLACK);
-
-                int pref = Prefectures.GetNearPref(wgs84Point.getY(), wgs84Point.getX());
-                calloutContent.setText(Prefectures.Pref[pref]+"\n"+eqdata[pref]);
-                Point prefPoint = Prefectures.GetPoint(pref);
-
-                mCallout = mapView_map.getCallout();
-                mCallout.setLocation(prefPoint);
-                mCallout.setContent(calloutContent);
-                mCallout.show();
-
-                mapView_map.setViewpointCenterAsync(prefPoint);
-
-                return true;
-            }
-        });
-    }
-    private void createGraphics() {
-        createGraphicsOverlay();
-        createPointGraphics();
-    }
-    private void createGraphicsOverlay() {
-        mGraphicsOverlay = new GraphicsOverlay();
-        mapView_map.getGraphicsOverlays().add(mGraphicsOverlay);
-    }
-    private void createPointGraphics() {
-        SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.rgb(226, 119, 40), 10.0f);
-        pointSymbol.setOutline(new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 2.0f));
-        for(int i=0; i< Prefectures.PREF_NUM; i++){
-            Graphic pointGraphic = new Graphic(Prefectures.GetPoint(i), pointSymbol);
-            mGraphicsOverlay.getGraphics().add(pointGraphic);
-        }
     }
 }
