@@ -3,7 +3,6 @@ package com.example.teamet.light_app.network;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.IBinder;
 //import android.support.annotation.Nullable;
 //import android.support.v4.app.NotificationCompat;
@@ -111,32 +110,5 @@ public class Router extends Service {
         asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         return START_STICKY;
-    }
-
-    public void sendJsonToGroupOwner() {
-        pm.requestIsGroupOwner(new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean isGroupOwner) {
-                if (isGroupOwner) {
-                    server.sendClients();
-                }
-                else {
-                    pm.requestIPAddr(new Consumer<InetAddress>() {
-                        @Override
-                        public void accept(InetAddress inetAddress) {
-                            if (inetAddress == null) {
-                                Log.v("Router", "Failed fetching Group-owner IP address in sendJsonToGroupOwner().");
-                                return;
-                            }
-
-                            Log.v("Router", String.format("Sending json to group-owner [%s:%d] ...", inetAddress.toString(), PORT));
-
-                            Client client = new Client(inetAddress, String.valueOf(PORT), Router.this);
-                            client.execute();
-                        }
-                    });
-                }
-            }
-        });
     }
 }
