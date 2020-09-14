@@ -20,6 +20,9 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class Server extends AsyncTask<String, Void, Void> {
     public final int BUF_SIZE = 1024;
@@ -27,18 +30,20 @@ public class Server extends AsyncTask<String, Void, Void> {
     private Context co;
     private int duration = Toast.LENGTH_SHORT;
     private Socket sc;
-    private Handler handler;
     private BufferedReader br;
     private char[] buf;
     private ArrayList<InetAddress> clients;
     private P2pManager pm;
+    private double prevRequestedTime = Double.NEGATIVE_INFINITY;
 
-    public Server(String port, Context context, P2pManager pm){
+    private Map<Byte, Integer> countByMethod;
+
+    public Server(Context context, P2pManager pm){
         co = context;
-        handler = new Handler();
         buf = new char[BUF_SIZE];
         clients = new ArrayList<>();
         this.pm = pm;
+        countByMethod = new HashMap<>();
     }
 
     protected Void doInBackground(String... cx){
@@ -53,10 +58,27 @@ public class Server extends AsyncTask<String, Void, Void> {
 
         do {
             lenRecved = br.read(buf, 0, BUF_SIZE);
-            sb.append(buf, 0, lenRecved);
+            if (lenRecved != -1) {
+                sb.append(buf, 0, lenRecved);
+            }
         } while (lenRecved == BUF_SIZE);
 
         return sb.toString();
+    }
+
+    public void logStatistics() {
+        Integer count;
+
+        Log.v("Server", "count of request:");
+        if (countByMethod.containsKey(Router.METHOD_GET)) {
+            Log.v("Server", "GET: " + countByMethod.get(Router.METHOD_GET));
+        }
+        if (countByMethod.containsKey(Router.METHOD_POST)) {
+            Log.v("Server", "POST: " + countByMethod.get(Router.METHOD_POST));
+        }
+        if (countByMethod.containsKey(Router.METHOD_POLL_LOAD)) {
+            Log.v("Server", "POLL_LOAD: " + countByMethod.get(Router.METHOD_POLL_LOAD));
+        }
     }
 
     public void saveJson(String data){
@@ -74,7 +96,7 @@ public class Server extends AsyncTask<String, Void, Void> {
     }
 
     public void accept(){
-        try{
+        try {
             ServerSocket ss = new ServerSocket(Router.PORT);
 
             Log.v( "Server", String.format("Listening on %s:%d ...", ss.getInetAddress().toString(), ss.getLocalPort()) );
@@ -86,61 +108,57 @@ public class Server extends AsyncTask<String, Void, Void> {
 
                     br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
 
-                    String data = recv();
-                    if (data.length() == 0) {
-                        Log.v("Server", "Received empty data.");
-                        clients.add( sc.getInetAddress() );
+                    String data = Router.recv(br, buf);
+
+                    byte method = data.getBytes()[0];
+                    String text = new String(data.getBytes("UTF-8"), 1, data.getBytes().length - 1, "UTF-8");
+
+                    if (countByMethod.containsKey(method)) {
+                        countByMethod.put(method, countByMethod.get(method)+1);
                     }
                     else {
-                        Log.v("Server", "Received non-empty data.");
-                        saveJson(data);
-
-                        pm.requestIsGroupOwner(new Consumer<Boolean>() {
-                            @Override
-                            public void accept(Boolean isGroupOwner) {
-                                if (isGroupOwner) {
-                                    Log.v("Server", "Group-owner is me.");
-                                    for (InetAddress addr : clients) {
-                                        Client client = new Client(addr, String.valueOf(Router.PORT), co);
-                                        client.execute();
-                                    }
-                                }
-                            }
-                        });
+                        countByMethod.put(method, 1);
                     }
+
+                    switch (method) {
+                        case Router.METHOD_POST:
+                            Log.v("Server", "Received POST request.");
+                            prevRequestedTime = System.currentTimeMillis();
+                            Router.saveJson(text, co);
+                            break;
+
+                        case Router.METHOD_GET:
+                            Log.v("Server", "Received GET request.");
+                            prevRequestedTime = System.currentTimeMillis();
+                            Router.sendJsonFile(sc, false, co);
+                            break;
+
+                        case Router.METHOD_POLL_LOAD:
+                            Log.v("Server", "Received POLL-LOAD request.");
+                            Router.sendData(sc, String.valueOf(calcLoad()), null);
+                            break;
+
+                        default:
+                            Log.v("Server", "Received unknown method request: " + method);
+                    }
+
+                    if (!clients.contains(sc.getInetAddress())) {
+                        clients.add(sc.getInetAddress());
+                    }
+                    Log.v("Server", "Current client list: " + clients.toString());
 
                     br.close();
                     sc.close();
                 } catch (Exception ex){
-                    showToast(ex.toString());
+                    ex.printStackTrace();
                 }
             }
-        }catch (IOException e){
-            showToast(e.toString());
-        }
-    }
-
-    public void send(String data){
-        try{
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sc.getOutputStream())));
-            pw.write(data);
-        }catch(Exception e){
-            showToast("送信できませんでした" + e.toString());
+        } catch (IOException e){
             e.printStackTrace();
         }
     }
 
-    private void showToast(final String text) {
-        execMainLooper(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(co, text, duration).show();
-                Log.v("toast:", text);
-            }
-        });
-    }
-
-    private void execMainLooper(Runnable runnable) {
-        handler.post(runnable);
+    double calcLoad() {
+        return 1000.0 / (System.currentTimeMillis() - prevRequestedTime);
     }
 }

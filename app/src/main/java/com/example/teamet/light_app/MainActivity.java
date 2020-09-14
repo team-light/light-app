@@ -1,11 +1,16 @@
 package com.example.teamet.light_app;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 //import android.support.v7.app.AppCompatActivity;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 //import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
@@ -26,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout fab_close;
     private ObjectAnimator animator_fabs;
 
+    private static final int PERMISSION_WRITE_EX_STR = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +52,31 @@ public class MainActivity extends AppCompatActivity {
 
         fab_net = findViewById(R.id.main_menu_set);
         fab_close = findViewById(R.id.main_menu_close);
+
+        /// パーミッション許可を取る
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_STATE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.CHANGE_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(this,
+                    new String[] {
+                        Manifest.permission.INTERNET,
+                        Manifest.permission.ACCESS_NETWORK_STATE,
+                        Manifest.permission.FOREGROUND_SERVICE,
+                        Manifest.permission.ACCESS_WIFI_STATE,
+                        Manifest.permission.CHANGE_WIFI_STATE,
+                        Manifest.permission.CHANGE_NETWORK_STATE,
+                    }, PERMISSION_WRITE_EX_STR
+                );
+            }
+        }
     }
 
-//    情報の表示
+    //    情報の表示
     public void pushAlarmFab(View view){
         Intent intent = new Intent(this, DisplayInfoActivity.class);
         intent.putExtra("info_type", "alarm");

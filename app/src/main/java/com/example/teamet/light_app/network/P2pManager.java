@@ -30,53 +30,75 @@ public class P2pManager {
         channel = manager.initialize(context, context.getMainLooper(), null);
     }
 
-    public void discoverPeers() {
+    public void discoverPeers(Runnable then) {
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener () {
             @Override
             public void onSuccess() {
-                showToast(successMsg("discoverPeers"));
+                Log.v("P2pManager", successMsg("discoverPeers"));
+                then.run();
             }
 
             @Override
             public void onFailure(int reason) {
-                showToast(failureMsg("discoverPeers"));
+                Log.v("P2pManager", failureMsg("discoverPeers"));
+                then.run();
             }
         });
     }
 
-    public void stopPeerDiscovery() {
+    public void stopPeerDiscovery(Runnable then) {
         manager.stopPeerDiscovery(channel,  new WifiP2pManager.ActionListener () {
             @Override
             public void onSuccess() {
-                showToast(successMsg("stopPeerDiscovery"));
+                Log.v("P2pManager", successMsg("stopPeerDiscovery"));
+                then.run();
             }
 
             @Override
             public void onFailure(int reason) {
-                showToast(failureMsg("stopPeerDiscovery"));
+                Log.v("P2pManager", failureMsg("stopPeerDiscovery"));
+                then.run();
             }
         });
     }
 
-    public void connect(WifiP2pConfig config) {
+    public void connect(WifiP2pConfig config, Consumer<Boolean> then) {
         manager.connect(channel, config, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
-                showToast(successMsg("Connect"));
+                Log.v("P2pManager", successMsg("Connect"));
+                then.accept(true);
             }
 
             @Override
             public void onFailure(int reason) {
-                showToast(failureMsg("Connect"));
+                Log.v("P2pManager", failureMsg("Connect"));
+                then.accept(false);
             }
         } );
+    }
+
+    public void disconnectAll(final Runnable then) {
+        manager.removeGroup(channel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Log.v("P2pManager", successMsg("disconnectAll"));
+                discoverPeers(then);
+            }
+
+            @Override
+            public void onFailure(int i) {
+                Log.v("P2pManager", failureMsg("disconnectAll"));
+                then.run();
+            }
+        });
     }
 
    public void requestPeers(final Consumer<List<WifiP2pDevice>> peerListListener) {
         manager.requestPeers(channel, new WifiP2pManager.PeerListListener() {
             @Override
             public void onPeersAvailable(WifiP2pDeviceList peers) {
-                showToast(successMsg("requestPeers"));
+                Log.v("P2pManager", successMsg("requestPeers"));
                 final List<WifiP2pDevice> ps = new ArrayList<>(peers.getDeviceList());
                 peerListListener.accept(ps);
             }
@@ -101,10 +123,6 @@ public class P2pManager {
         });
     }
 
-    private void showToast(String text) {
-        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
-    }
-
     // エラーメッセージ生成
     private String failureMsg(String fnName) {
         return fnName + "(...) failure.";
@@ -116,20 +134,18 @@ public class P2pManager {
     }
 
     public void requestIsGroupOwner(final Consumer<Boolean> consumer) {
-        manager.requestGroupInfo(channel, new WifiP2pManager.GroupInfoListener() {
-            @Override
-            public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
-                if (wifiP2pGroup == null) {
-                    Log.v("P2pManager", "wifiP2pGroup == null");
-                }
-                else {
-                    (new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            consumer.accept(wifiP2pGroup.isGroupOwner());
-                        }
-                    })).start();
-                }
+        manager.requestGroupInfo(channel, wifiP2pGroup -> {
+            if (wifiP2pGroup == null) {
+                Log.v("P2pManager", "wifiP2pGroup == null");
+                consumer.accept(null);
+            }
+            else {
+                (new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        consumer.accept(wifiP2pGroup.isGroupOwner());
+                    }
+                })).start();
             }
         });
     }
