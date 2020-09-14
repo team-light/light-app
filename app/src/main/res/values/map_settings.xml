@@ -1,9 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="arcgis_license_key" translatable="false">runtimelite,1000,rud5359021035,none,JFB3LNBHPFG2LMZ59238</string>
-    <string-array name="spinner_array">
-        <item>"ピンなし"</item>
-        <item>"警報情報"</item>
-        <item>"地震情報"</item>
+    <string-array name="displayInfo_spinner_map">
+        <item>ピンなし</item>
+        <item>警報情報</item>
+        <item>地震情報</item>
+    </string-array>
+
+    <string-array name="entries_map_eq">
+        <item>震度1以上</item>
+        <item>震度2以上</item>
+        <item>震度3以上</item>
+        <item>震度4以上</item>
+        <item>震度5弱以上</item>
+        <item>震度5強以上</item>
+        <item>震度6弱以上</item>
+        <item>震度6強以上</item>
+        <item>震度7</item>
+    </string-array>
+    <string-array name="entryValues_map_eq">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+    </string-array>
+
+    <string-array name="entries_map_alarm">
+        <item>警報・注意報すべて</item>
+        <item>警報すべて</item>
+        <item>大雨警報</item>
+        <item>暴風警報</item>
+        <item>大雪警報</item>
+        <item>洪水警報</item>
+        <item>高潮警報</item>
+        <item>波浪警報</item>
+        <item>暴風雪警報</item>
+    </string-array>
+    <string-array name="entryValues_map_alarm">
+        <item>""</item>
+        <item>警報</item>
+        <item>大雨警報</item>
+        <item>暴風警報</item>
+        <item>大雪警報</item>
+        <item>洪水警報</item>
+        <item>高潮警報</item>
+        <item>波浪警報</item>
+        <item>暴風雪警報</item>
     </string-array>
 </resources>

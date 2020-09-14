@@ -1,9 +1,25 @@
 <resources>
     <string name="app_name">light-app</string>
-    <string name="fab_text_setNet">インターネット（未）</string>
     <string name="fab_text_info">" 情報を見る "</string>
     <string name="fab_text_alarm">" 警報・注意報 "</string>
     <string name="fab_text_earthquake">" 地震情報 "</string>
-    <string name="fab_text_map">" 災害マップ（未）"</string>
+    <string name="fab_text_map">" 災害マップ"</string>
+    <string name="fab_text_set">" 設定 "</string>
     <string name="fab_text_close">" アプリを閉じる "</string>
+    <string name="title_activity_settings" translatable="false">Settings</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header" translatable="false">Messages</string>
+    <string name="sync_header" translatable="false">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title" translatable="false">Your signature</string>
+    <string name="reply_title" translatable="false">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title" translatable="false">Sync email periodically</string>
+    <string name="attachment_title" translatable="false">Download incoming attachments</string>
+    <string name="attachment_summary_on" translatable="false">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off" translatable="false">Only download attachments when manually requested</string>
 </resources>
