@@ -9,12 +9,12 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.util.Consumer;
 import android.util.Log;
 import android.util.Pair;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 
 import com.example.teamet.light_app.R;
 import com.example.teamet.light_app.database.DataBaseMake;
@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static java.lang.Double.NaN;
@@ -67,6 +68,7 @@ public class Router extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Notification notification =
@@ -184,6 +186,7 @@ public class Router extends Service {
         return START_STICKY;
     }
 
+    /*
     public void onUpdatedJson() {
         pm.requestIsGroupOwner(new Consumer<Boolean>() {
             @Override
@@ -207,6 +210,7 @@ public class Router extends Service {
             }
         });
     }
+     */
 
     public static void saveJson(String data, Context context){
         try {
@@ -276,6 +280,7 @@ public class Router extends Service {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void refreshConnection(Consumer<WifiP2pConfig> onDeterminedConfig) {
         class LoopState {
             double minLoad;
@@ -370,6 +375,7 @@ public class Router extends Service {
         return Double.parseDouble(recved);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     <T,State> void foldAsync(Iterator<T> iter, State initial, Consumer<Pair<Pair<T,State>,Consumer<State>>> f, Consumer<State> continuation) {
         if (!iter.hasNext()) {
             continuation.accept(initial);
@@ -380,6 +386,7 @@ public class Router extends Service {
         f.accept(Pair.create(Pair.create(x, initial), s -> foldAsync(iter, s, f, continuation)));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     <State> void loopAsync(int times, State initial, Consumer<Pair<Pair<Integer, State>,Consumer<State>>> f, Consumer<State> continuation) {
         foldAsync(new Iterator<Integer>(){
             int counter = 0;
