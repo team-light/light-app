@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.text.Html;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.TextView;
@@ -342,8 +343,8 @@ public class MapManager {
     }
     @SuppressLint("ClickableViewAccessibility")
     public void setTouchEq(){
-        String[] eqdata = new String[Prefectures.PREF_NUM];
-        for(int i=0; i<eqdata.length; i++) eqdata[i] = "";
+        StringBuilder[] stringBuilder = new StringBuilder[Prefectures.PREF_NUM];
+        for(int i=0; i<stringBuilder.length; i++) stringBuilder[i] = new StringBuilder();
         try{
             Cursor target = db.query(
                     "eq_info",
@@ -355,6 +356,8 @@ public class MapManager {
                     null
             );
             target.moveToFirst();
+            String datetime = target.getString(1);
+            for(int i=0; i<stringBuilder.length; i++) stringBuilder[i].append(Prefectures.Pref[i]).append(datetime);
             JSONArray city_list = new JSONArray(target.getString(8));
             target.close();
             for(int i=city_list.length()-1; 0<i; i--){
@@ -366,10 +369,16 @@ public class MapManager {
                     while (pref_list.hasNext()){
                         String pref = pref_list.next();
                         int pref_index = Prefectures.GetIndex(pref);
-                        eqdata[pref_index] += "震度："+max_int+"\n";
+                        setFont(4,stringBuilder[pref_index],"震度：<big>"+max_int+"</big>");
+
                         JSONArray area = prefs.getJSONArray(pref);
-                        for(int j=0; j<area.length(); j++) eqdata[pref_index] += area.getString(j)+", ";
-                        eqdata[pref_index] += "\n";
+                        StringBuilder areaString = new StringBuilder();
+                        for(int j=0; j<area.length(); j++) {
+                            areaString.append(area.getString(j));
+                            if(j!=area.length()-1) areaString.append(",");
+                        }
+                        setFont(6,stringBuilder[pref_index], areaString.toString());
+                        stringBuilder[pref_index].append("\n");
                     }
                 }
             }
@@ -388,7 +397,7 @@ public class MapManager {
                 calloutContent.setTextColor(Color.BLACK);
 
                 int pref = Prefectures.GetNearPref(wgs84Point.getY(), wgs84Point.getX());
-                calloutContent.setText(Prefectures.Pref[pref]+"\n"+eqdata[pref]);
+                calloutContent.setText(Html.fromHtml(stringBuilder[pref].toString()));
                 Point prefPoint = Prefectures.GetPoint(pref);
 
                 mCallout = mMapView.getCallout();
@@ -398,9 +407,14 @@ public class MapManager {
 
                 mMapView.setViewpointCenterAsync(prefPoint);
 
+
                 return true;
             }
         });
+    }
+
+    private void setFont(int h_size,StringBuilder sbuilder,String string){
+        sbuilder.append("<h").append(h_size).append(">").append(string).append("</h").append(h_size).append(">");
     }
 
     private void createGraphics() {
